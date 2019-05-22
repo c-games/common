@@ -1,22 +1,31 @@
 package user
 
-import "time"
-
-type UserCommand string
-
-
-const (
-	Register UserCommand = "register"
-	Login    UserCommand = "login"
-	Logout   UserCommand = "logout"
-	Token    UserCommand = "token"
-	Update   UserCommand = "update"
-	Validate UserCommand = "validate"
-	Fetch UserCommand = "fetchdata"
+import (
+	"gitlab.3ag.xyz/core/backend/common/mq/msg"
+	"time"
 )
 
+
+var (
+	Register msg.ServiceCommand = msg.NewCommand("register")
+
+	Login    msg.ServiceCommand = msg.NewCommand("login")
+
+	Logout   msg.ServiceCommand = msg.NewCommand("logout")
+
+	Token    msg.ServiceCommand = msg.NewCommand("token")
+
+	Update   msg.ServiceCommand = msg.NewCommand("update")
+
+	Validate msg.ServiceCommand = msg.NewCommand("validate")
+
+	Fetch msg.ServiceCommand = msg.NewCommand("fetchdata")
+)
+
+
+
+// TODO rename SelfFetch
 type FetchData struct {
-	Account string `json:"account"`
 	Token string `json:"token"`
 }
 
@@ -58,23 +67,9 @@ type RegisterData struct {
 }
 
 type LogoutData struct {
-	Account string `json:"account"`
 	Token   string `json:"token"`
 }
 
-
 type ValidateData struct {
-	Account  string `json:"account"`
 	Token    string `json:"token"`
-	UserId   string `json:"user_id"`
-}
-
-
-// TODO deprecated, move to msg
-type ResponseData struct {
-	Serial  string `json:"serial"`
-	Message string `json:"message"`
-	ErrorCode int `json:"error_code"`
-	UserId string `json:"user_id"`
-	Args interface{} `json:"args"`
 }

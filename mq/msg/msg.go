@@ -5,44 +5,40 @@ import (
 	"gitlab.3ag.xyz/core/backend/common/fail"
 )
 
-type Content struct {
+type CGMessage struct {
 	Type          string             `json:type`
 	Serial        string             `json:"serial"`
 	RouteId       string             `json:"id"`
-	// UserId        string             `json:"user"`
-	ServiceName   Service            `json:"service_name"`
+	ResponseName  Service            `json:"service_name"`
 	Command       string             `json:"command"`
-	Data          []json.RawMessage  `json:"data"`
 	WaitResponse  bool               `json:"wait_response"`
+	Data          []json.RawMessage  `json:"data"`
 }
 
-type Service string
-const (
-	Order  Service = "order"
-	User   Service = "user"
-	Wallet Service = "wallet"
-)
+type IServiceData interface {
+//	ToJson() string
+	//ToByteArray() []byte
+}
 
 type MessageData interface {
 	Get(string) interface{}
 	ToStruct()
 }
 
-
-func ToStruct(body []byte) Content {
-	var reqMsg Content
-	err := json.Unmarshal(body, &reqMsg)
+func ToStruct(body []byte) CGMessage {
+	var cgMsg CGMessage
+	err := json.Unmarshal(body, &cgMsg)
 	fail.FailOnError(err, "unmarshal json failed")
-	return reqMsg
+	return cgMsg
 }
 
-// TODO remove
-type ResponseData struct {
-	Serial  string `json:serial`
-	OriginRouteId string `json:origin_route_id`
-	Service string `json:service`
-	UserId string `json:user_id`
-	OriginCommand string `json:origin_command`
-	ErrorCode int `json:error_code`
-	Args interface{} `json:args`
+
+func ToJson(d interface{}) string {
+	return string(ToByteArray(d))
+}
+
+func ToByteArray(d interface{}) []byte {
+	json, err := json.Marshal(d)
+	fail.FailOnError(err, "parse json failed")
+	return json
 }

@@ -1,18 +1,17 @@
 package logger
 
 import (
-	"time"
 	"encoding/json"
-	"fmt"
 	"errors"
-	"github.com/streadway/amqp"
-	"gitlab.3ag.xyz/core/backend/common/mq"
+	"fmt"
 	"gitlab.3ag.xyz/core/backend/common/fail"
+	"gitlab.3ag.xyz/core/backend/common/mq"
+	"gitlab.3ag.xyz/core/backend/common/mq/msg"
 )
 
 type loggerStruct struct {
 	channel chan string
-	mqChannel *mq.MqChann
+	mqChannel mq.IChannelAdapter
 }
 
 type LogMessage struct {
@@ -21,14 +20,14 @@ type LogMessage struct {
 
 var logger *loggerStruct
 
-func Init(ch *mq.MqChann) {
+func Init(loggerQueueName string, channel mq.IChannelAdapter) {
 	if logger == nil {
 		logger = &loggerStruct{
 			channel: make(chan string),
-			mqChannel: ch,
+			mqChannel: channel,
 		}
 
-		ch.GenQueue("cg-log", true, false, false, false, nil)
+		_, _ = channel.QueueDeclare(loggerQueueName, true, false, false, false)
 
 		go func() {
 			for logFromChann := range logger.channel {
@@ -36,16 +35,12 @@ func Init(ch *mq.MqChann) {
 				logJson, err := json.Marshal(logMsg)
 				fail.FailOnError(err, "Parse Log Message Failed")
 
-				err = logger.mqChannel.Ch.Publish(
-					"",
-					"cg-log",
-					false,
-					false,
-					amqp.Publishing{
-						ContentType: "application/json",
-						Body: []byte(logJson),
-						Timestamp: time.Now(),
-					})
+				err = logger.mqChannel.Publish(
+					msg.Logger,
+					msg.CGMessage{
+						Data: []json.RawMessage{logJson},
+					},
+				)
 				fail.FailOnError(err, "[logger] publish faled")
 			}
 		}()
