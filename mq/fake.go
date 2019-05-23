@@ -69,6 +69,16 @@ func (fake *FakeChannel) QueueDeclare(name string, durable, autoDelete, exclusiv
 	}, nil
 }
 
+func (fake *FakeChannel) ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table) error {
+	// TODO 定義轉發的 pattern
+	return nil
+}
+
+func (fake *FakeChannel) QueueBind(name, key, exchange string, noWait bool, args amqp.Table) error {
+	// TODO bind exchange
+	return nil
+}
+
 func (fake *FakeChannel) Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error) {
 	ch := fake.channels[queue]
 

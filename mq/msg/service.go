@@ -16,6 +16,7 @@ type QueueConfig struct {
 	exclusive bool
 	noWait bool
 	args amqp.Table
+	bindKey string
 }
 
 type IServiceCommand interface {
@@ -43,6 +44,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
+			bindKey: "user.*",
 		},
 		responseQueueConfig: &QueueConfig{
 			name: "cg-user-pipeline-response",
@@ -50,6 +52,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
+			bindKey: "user-res.*",
 		},
 	}
 
@@ -61,6 +64,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
+			bindKey: "orders.*",
 		},
 		responseQueueConfig: &QueueConfig{
 			name: "cg-orders-pipeline-response",
@@ -68,6 +72,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
+			bindKey: "orders-res.*",
 		},
 	}
 
@@ -79,6 +84,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
+			bindKey: "orders.*",
 		},
 		responseQueueConfig: &QueueConfig{
 			name: "cg-wallet-pipeline-response",
@@ -86,6 +92,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
+			bindKey: "orders-res.*",
 		},
 	}
 
@@ -123,6 +130,14 @@ func (s *Service) ResponseQueueName() string {
 
 func (s *Service) GetQueueConfig() QueueConfig {
 	return *s.queueConfig
+}
+
+func (s *Service) GetQueueBind() string {
+	return s.queueConfig.bindKey
+}
+
+func (s *Service) GetResponseQueueBind() string {
+	return s.responseQueueConfig.bindKey
 }
 
 func (s *Service) GetResponseQueueConfig() QueueConfig {

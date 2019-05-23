@@ -23,9 +23,25 @@ func Init() (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Wallet.GetQueueConfig())
 	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.User.GetQueueConfig())
 	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Orders.GetQueueConfig())
+
 	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Wallet.GetResponseQueueConfig())
 	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.User.GetResponseQueueConfig())
 	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Orders.GetResponseQueueConfig())
+
+
+	exgName := "cg-exchanger" // TODO move
+
+	mqChAdp.ExchangeDeclare(exgName, "topic", true, false, false, false, nil)
+
+	mqChAdp.QueueBind(msg.Wallet.QueueName(), msg.Wallet.GetQueueBind(), exgName)
+	mqChAdp.QueueBind(msg.User.QueueName(), msg.User.GetQueueBind(), exgName)
+	mqChAdp.QueueBind(msg.Orders.QueueName(), msg.Orders.GetQueueBind(), exgName)
+
+	mqChAdp.QueueBind(msg.Wallet.ResponseQueueName(), msg.Wallet.GetResponseQueueBind(), exgName)
+	mqChAdp.QueueBind(msg.User.ResponseQueueName(), msg.User.GetResponseQueueBind(), exgName)
+	mqChAdp.QueueBind(msg.Orders.ResponseQueueName(), msg.Orders.GetResponseQueueBind(), exgName)
+
+
 	mqChAdp.QOS(1, 0, false)
 
 	// NOTE generate a logger channel

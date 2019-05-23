@@ -25,6 +25,8 @@ type IChannel interface {
 	Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
 	Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error)
 	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (amqp.Queue, error)
+	ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table) error
+	QueueBind(name, key, exchange string, noWait bool, args amqp.Table) error
 	QOS(count, size int, global bool)
 }
 
@@ -45,6 +47,8 @@ type IChannelAdapter interface {
 	GetQueueWithArgs(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) IQueueAdapter
 	Publish(targetService msg.Service, cgMsg msg.CGMessage) error
 	PublishNoWaitTo(serviceName msg.Service, command msg.ServiceCommand, serial string, data msg.IServiceData) error
+	ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table)
+	QueueBind(queueName, bindKey, exchangeName string)
 	QOS(count, size int, global bool)
 	// TODO 需要一個直接指定 queue 的 publish
 	Close()
@@ -172,8 +176,25 @@ func (adp *ChannelAdapter) GetQueueWithArgs(name string, durable, autoDelete, ex
 
 }
 
+func (adp *ChannelAdapter) ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table) {
+	err := adp.Channel.ExchangeDeclare(
+		name,    // name
+		kind,    // kind
+		durable, // durable
+		autoDelete, // delete when usused
+		internal,  // exclusive
+		noWait, // no-wait
+		nil,   // arguments
+	)
+	fail.FailOnError(err, "Failed to declare a exchange")
+}
+
 func (adp *ChannelAdapter) QOS(count, size int, global bool) {
 	adp.Channel.QOS(count, size, global)
+}
+
+func (adp *ChannelAdapter) QueueBind(queueName, bindKey, exchangeName string) {
+	// TODO
 }
 
 func (adp *ChannelAdapter) Close() {
