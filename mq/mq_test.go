@@ -32,12 +32,12 @@ func TestChannelAdapter_PublishAndConsume(t *testing.T) {
 		Data: []json.RawMessage{srvData},
 	}
 	err := fakeCh.Publish(msg.User, newMsg)
-	testutil.TestFailIfErr(err, t)
+	testutil.TestFailIfErr(t, err, "")
 
 
 	err = fakeCh.PublishNoWaitTo(msg.User, user.Validate, "",
 		&user.ValidateData{})
-	testutil.TestFailIfErr(err, t)
+	testutil.TestFailIfErr(t, err, "")
 
 	fakeQ := initFakeQueue(msg.User.QueueName())
 	resMsg := fakeQ.Consume("", false, false, false, false, nil)
