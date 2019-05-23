@@ -4,9 +4,15 @@ import (
 	"testing"
 )
 
-func TestFailIfErr(err error, t *testing.T) {
+
+func TestFailIfErr(t *testing.T, err error, message string) {
 	if err != nil {
-		t.Fail()}
+		t.Logf("%s", message)
+		t.Log(err)
+		t.Fail()
+	}
+}
+
 }
 
 func Is(result, expect interface{}, t *testing.T) {
