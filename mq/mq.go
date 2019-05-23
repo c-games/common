@@ -10,7 +10,7 @@ import (
 )
 
 // -------------------------------------------
-// AMQP Interface Facade
+// AMQP Interface Adapter
 // -------------------------------------------
 
 type IConnection interface {
