@@ -80,3 +80,7 @@ func (fake *FakeChannel) Consume(queue, consumer string, autoAck, exclusive, noL
 	return ch, nil
 
 }
+
+func (fake *FakeChannel) QOS(count, size int, global bool) {
+	// NOTE do nothing
+}

@@ -25,6 +25,7 @@ type IChannel interface {
 	Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
 	Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error)
 	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (amqp.Queue, error)
+	QOS(count, size int, global bool)
 }
 
 // TODO Queue 尚未使用
@@ -39,10 +40,12 @@ type IAMQPAdapter interface {
 
 type IChannelAdapter interface {
 	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool) (amqp.Queue, error)
+	QueueDeclareByQueueConfig(config msg.QueueConfig) (amqp.Queue, error)
 	GetQueue(name string, durable, autoDelete, exclusive, noWait bool) IQueueAdapter
 	GetQueueWithArgs(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) IQueueAdapter
 	Publish(targetService msg.Service, cgMsg msg.CGMessage) error
 	PublishNoWaitTo(serviceName msg.Service, command msg.ServiceCommand, serial string, data msg.IServiceData) error
+	QOS(count, size int, global bool)
 	// TODO 需要一個直接指定 queue 的 publish
 	Close()
 }
@@ -139,6 +142,11 @@ func (adp *ChannelAdapter) QueueDeclare(name string, durable, autoDelete, exclus
 	return q, err
 }
 
+func (adp *ChannelAdapter) QueueDeclareByQueueConfig(config msg.QueueConfig) (amqp.Queue, error) {
+	name, durable, autoDelete, exclusive, noWait, args := config.Spread()
+	q, err := adp.Channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, args)
+	return q, err
+}
 
 func (adp *ChannelAdapter) GetQueue(name string, durable, autoDelete, exclusive, noWait bool) IQueueAdapter {
 	return adp.GetQueueWithArgs(name, durable, autoDelete, exclusive, noWait, nil)
@@ -162,6 +170,10 @@ func (adp *ChannelAdapter) GetQueueWithArgs(name string, durable, autoDelete, ex
 		Queue: &q,
 	}
 
+}
+
+func (adp *ChannelAdapter) QOS(count, size int, global bool) {
+	adp.Channel.QOS(count, size, global)
 }
 
 func (adp *ChannelAdapter) Close() {

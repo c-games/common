@@ -1,10 +1,21 @@
 package msg
 
+import "github.com/streadway/amqp"
+
 type Service struct {
 	name string
-	queueName string
-	queueResponseName string
 	command []IServiceCommand
+	queueConfig *QueueConfig
+	responseQueueConfig *QueueConfig
+}
+
+type QueueConfig struct {
+	name string
+	durable bool
+	autoDelete bool
+	exclusive bool
+	noWait bool
+	args amqp.Table
 }
 
 type IServiceCommand interface {
@@ -26,26 +37,74 @@ func (c *ServiceCommand) GetCommand() string {
 var (
 	User Service = Service{
 		name: "user",
-		queueName: "cg-user",
-		queueResponseName: "cg-user-pipeline-response",
+		queueConfig: &QueueConfig{
+			name: "cg-user",
+			durable: true,
+			autoDelete: false,
+			exclusive: false,
+			noWait: false,
+		},
+		responseQueueConfig: &QueueConfig{
+			name: "cg-user-pipeline-response",
+			durable: true,
+			autoDelete: false,
+			exclusive: false,
+			noWait: false,
+		},
 	}
 
-	Order Service = Service{
+	Orders Service = Service{
 		name: "orders",
-		queueName: "cg-orders",
-		queueResponseName: "cg-orders-pipeline-response",
+		queueConfig: &QueueConfig{
+			name: "cg-orders",
+			durable: true,
+			autoDelete: false,
+			exclusive: false,
+			noWait: false,
+		},
+		responseQueueConfig: &QueueConfig{
+			name: "cg-orders-pipeline-response",
+			durable: true,
+			autoDelete: false,
+			exclusive: false,
+			noWait: false,
+		},
 	}
 
 	Wallet Service = Service{
 		name: "wallet",
-		queueName: "cg-wallet",
-		queueResponseName: "cg-wallet-pipeline-response",
+		queueConfig: &QueueConfig{
+			name: "cg-wallet",
+			durable: true,
+			autoDelete: false,
+			exclusive: false,
+			noWait: false,
+		},
+		responseQueueConfig: &QueueConfig{
+			name: "cg-wallet-pipeline-response",
+			durable: true,
+			autoDelete: false,
+			exclusive: false,
+			noWait: false,
+		},
 	}
 
 	Logger Service = Service{
 		name: "logger",
-		queueName: "cg-logger",
-		queueResponseName: "cg-logger-pipeline-response",
+		queueConfig: &QueueConfig{
+			name: "cg-logger",
+			durable: false,
+			autoDelete: false,
+			exclusive: false,
+			noWait: false,
+		},
+		responseQueueConfig: &QueueConfig{
+			name: "cg-logger-pipeline-response",
+			durable: false,
+			autoDelete: false,
+			exclusive: false,
+			noWait: false,
+		},
 	}
 )
 
@@ -55,9 +114,26 @@ func (s *Service) Name() string {
 
 
 func (s *Service) QueueName() string {
-	return s.queueName
+	return s.queueConfig.name
 }
 
 func (s *Service) ResponseQueueName() string {
-	return s.queueResponseName
+	return s.responseQueueConfig.name
+}
+
+func (s *Service) GetQueueConfig() QueueConfig {
+	return *s.queueConfig
+}
+
+func (s *Service) GetResponseQueueConfig() QueueConfig {
+	return *s.queueConfig
+}
+
+func (s *Service) GetQueueConfigSpread() (bool, bool, bool, bool, amqp.Table) {
+	cfg := s.queueConfig
+	return cfg.durable, cfg.autoDelete, cfg.exclusive, cfg.noWait, cfg.args
+}
+
+func (cfg *QueueConfig) Spread() (string, bool, bool, bool, bool, amqp.Table) {
+	return cfg.name, cfg.durable, cfg.autoDelete, cfg.exclusive, cfg.noWait, cfg.args
 }

@@ -2,33 +2,35 @@ package app
 
 import (
 	"github.com/spf13/viper"
-	"gitlab.3ag.xyz/core/backend/common/mq"
 	"gitlab.3ag.xyz/core/backend/common/db"
 	"gitlab.3ag.xyz/core/backend/common/logger"
+	"gitlab.3ag.xyz/core/backend/common/mq"
+	"gitlab.3ag.xyz/core/backend/common/mq/msg"
 )
 
-func Init() (*mq.CgAmqp, chan bool) {
+func Init() (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	// RabbitMQ part
 	// ----------------------------------------
 	rabbitMqConf := viper.GetString("mq")
 
 	// NOTE 當 order 一開始後，subscribe 一個 channel 是收 order 處理的
-	mqCtx := mq.GenConn(rabbitMqConf)
+	mqAdp := mq.GenerateConnect(rabbitMqConf)
+	// mqCtx := mq.GenConn(rabbitMqConf)
 
-	mqCtx.GenChannel()
-	mqCtx.GenQueue("cg-wallet", true, false, false, false, nil)
-	mqCtx.GenQueue("cg-user", true, false, false, false, nil)
-	mqCtx.GenQueue("cg-orders", true, false, false, false, nil)
-	mqCtx.GenQueue("cg-wallet-pipeline-response", true, false, false, false, nil)
-	mqCtx.GenQueue("cg-user-pipeline-response", true, false, false, false, nil)
-	mqCtx.GenQueue("cg-orders-pipeline-response", true, false, false, false, nil)
-	// TODO other Queue
-	mqCtx.QOS(1, 0, false)
+	mqChAdp := mqAdp.GetChannel()
+
+	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Wallet.GetQueueConfig())
+	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.User.GetQueueConfig())
+	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Orders.GetQueueConfig())
+	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Wallet.GetResponseQueueConfig())
+	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.User.GetResponseQueueConfig())
+	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Orders.GetResponseQueueConfig())
+	mqChAdp.QOS(1, 0, false)
 
 	// NOTE generate a logger channel
-	chLogger := mqCtx.GetChannel()
-	logger.Init(chLogger)
+	chLogger := mqAdp.GetChannel()
+	logger.Init(msg.Logger.QueueName(), chLogger)
 
 
 	dbConf := viper.GetString("db")
@@ -36,6 +38,5 @@ func Init() (*mq.CgAmqp, chan bool) {
 
 	forever := make(chan bool)
 
-	return &mqCtx, forever
-
+	return mqAdp, mqChAdp, forever
 }
