@@ -44,7 +44,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "user.*",
+			bindKey: "user",
 		},
 		responseQueueConfig: &QueueConfig{
 			name: "cg-user-pipeline-response",
@@ -52,7 +52,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "user-res.*",
+			bindKey: "user-res",
 		},
 	}
 
@@ -64,7 +64,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders.*",
+			bindKey: "orders",
 		},
 		responseQueueConfig: &QueueConfig{
 			name: "cg-orders-pipeline-response",
@@ -72,7 +72,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders-res.*",
+			bindKey: "orders-res",
 		},
 	}
 
@@ -84,7 +84,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders.*",
+			bindKey: "orders",
 		},
 		responseQueueConfig: &QueueConfig{
 			name: "cg-wallet-pipeline-response",
@@ -92,7 +92,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders-res.*",
+			bindKey: "orders-res",
 		},
 	}
 
