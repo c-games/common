@@ -10,12 +10,14 @@ import (
 // TODO Not Thread Safe
 var fakeAdapterSingleton *AMQPAdapter
 var allChannel map[string]chan amqp.Delivery
-
+var fakeChanelSinglton *FakeChannel
 
 func CreateFakeAMQPAdapter() IAMQPAdapter {
 	if fakeAdapterSingleton == nil{
 		fakeAdapterSingleton = &AMQPAdapter{
+			Fake: true,
 			Connect: &FakeConnection{},
+			// Connect: &amqp.Connection{},
 		}
 	}
 
@@ -34,6 +36,7 @@ type ExchangeStruct struct {
 }
 
 type FakeChannel struct {
+	*amqp.Channel
 	channels map[string]chan amqp.Delivery
 	exchange map[string]*ExchangeStruct
 }
@@ -42,15 +45,20 @@ type FakeChannel struct {
 // FakeConnection
 // -------------------------------------------
 
-func (fake *FakeConnection) Channel() (IChannel, error) {
+func (fake *FakeConnection) Channel() (*amqp.Channel, error) {
 	if allChannel == nil {
 		allChannel = make(map[string]chan amqp.Delivery)
 	}
 
-	return &FakeChannel{
+	fakeChanelSinglton = &FakeChannel{
 		channels: allChannel,
 		exchange: make(map[string] *ExchangeStruct),
-	}, nil
+	}
+	return &amqp.Channel{}, nil
+}
+
+func GetFakeChannel() *FakeChannel {
+	return fakeChanelSinglton
 }
 
 // -------------------------------------------
@@ -144,6 +152,7 @@ func (fake *FakeChannel) Consume(queue, consumer string, autoAck, exclusive, noL
 
 }
 
-func (fake *FakeChannel) QOS(count, size int, global bool) {
+func (fake *FakeChannel) Qos(count, size int, global bool) error {
 	// NOTE do nothing
+	return nil
 }

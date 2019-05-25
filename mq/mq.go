@@ -25,9 +25,7 @@ func (err NoResponseErr) Error() string {
 // -------------------------------------------
 
 type IConnection interface {
-	// 原本 amqp Connection 的 method
-	// TODO 還有沒用到的 Function 沒補
-	Channel() (IChannel, error)
+	Channel() (*amqp.Channel, error)
 }
 
 type IChannel interface {
@@ -38,7 +36,7 @@ type IChannel interface {
 	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (amqp.Queue, error)
 	ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table) error
 	QueueBind(name, key, exchange string, noWait bool, args amqp.Table) error
-	QOS(count, size int, global bool)
+	Qos(prefetchCount, prefetchSize int, global bool) error
 }
 
 // TODO Queue 尚未使用
@@ -78,12 +76,16 @@ type IQueueAdapter interface {
 // -------------------------------------------
 
 type AMQPAdapter struct {
+	Fake bool
 	Connect IConnection
+	// Connect interface{}
+	// Connect *amqp.Connection
 }
 
 type ChannelAdapter struct {
 	AMQPAdapter *AMQPAdapter
 	Channel IChannel
+	// Channel *amqp.Channel
 }
 
 type QueueAdapter struct {
@@ -98,12 +100,27 @@ type QueueAdapter struct {
 // -------------------------------------------
 
 func (adp *AMQPAdapter) GetChannel() IChannelAdapter {
-	ch, err := adp.Connect.Channel()
+	var ch IChannel
+	var err error
+	if adp.Fake {
+		// TODO workaround
+		fc := FakeConnection{}
+		_, _ = fc.Channel()
+		ch = GetFakeChannel()
+	} else {
+		ch, err = adp.Connect.Channel()
+	}
+
 	fail.FailOnError(err, "")
 	return &ChannelAdapter{
 		AMQPAdapter: adp,
 		Channel: ch,
 	}
+}
+
+func (adp *ChannelAdapter) QOS(count, size int, global bool) {
+	err := adp.Channel.Qos(count, size, global)
+	fail.FailOnError(err, "QOS setup failed")
 }
 
 // -------------------------------------------
@@ -251,10 +268,6 @@ func (adp *ChannelAdapter) ExchangeDeclare(name, kind string, durable, autoDelet
 	fail.FailOnError(err, "Failed to declare a exchange")
 }
 
-func (adp *ChannelAdapter) QOS(count, size int, global bool) {
-	adp.Channel.QOS(count, size, global)
-}
-
 func (adp *ChannelAdapter) QueueBind(queueName, bindKey, exchangeName string, noWait bool, args amqp.Table) {
 	adp.Channel.QueueBind(queueName, bindKey, exchangeName, false, nil)
 }
@@ -287,5 +300,10 @@ func (chAdp *QueueAdapter) Consume(consumer string, autoAck, exclusive, noLocal,
 // -------------------------------------------
 
 func GenerateConnect(url string) *AMQPAdapter {
-	return &AMQPAdapter{}
+	conn, err := amqp.Dial(url)
+	fail.FailOnError(err, "Connect to RabbitMq failed")
+
+	return &AMQPAdapter{
+		Connect: conn,
+	}
 }
