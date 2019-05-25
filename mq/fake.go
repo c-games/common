@@ -1,7 +1,10 @@
 package mq
 
 import (
+	"fmt"
 	"github.com/streadway/amqp"
+	"gitlab.3ag.xyz/backend/common/fail"
+	"regexp"
 )
 
 // TODO Not Thread Safe
@@ -25,8 +28,14 @@ type FakeAMQPAdapter struct {
 
 type FakeConnection struct {}
 
+type ExchangeStruct struct {
+	exchangeType string
+	channelMatchCheck map[string] func(queueName string) bool
+}
+
 type FakeChannel struct {
 	channels map[string]chan amqp.Delivery
+	exchange map[string]*ExchangeStruct
 }
 
 // -------------------------------------------
@@ -40,6 +49,7 @@ func (fake *FakeConnection) Channel() (IChannel, error) {
 
 	return &FakeChannel{
 		channels: allChannel,
+		exchange: make(map[string] *ExchangeStruct),
 	}, nil
 }
 
@@ -48,12 +58,22 @@ func (fake *FakeConnection) Channel() (IChannel, error) {
 // -------------------------------------------
 
 func (fake *FakeChannel) Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error {
-	if fake.channels[exchange] == nil {
-		fake.channels[exchange] = make(chan amqp.Delivery)
+	targetQueue := "unknow"
+	if key == "" {
+		targetQueue = exchange
+	} else {
+		exg := fake.exchange[exchange]
+		for qName, chkFn := range exg.channelMatchCheck {
+			if chkFn(key) {
+				targetQueue = qName
+			}
+		}
 	}
 
+	fake.checkQueueExist(targetQueue)
+
 	go func() {
-		fake.channels[exchange]<- amqp.Delivery{
+		fake.channels[targetQueue]<- amqp.Delivery{
 			Body: msg.Body,
 			AppId: msg.AppId,
 			Timestamp: msg.Timestamp,
@@ -70,12 +90,45 @@ func (fake *FakeChannel) QueueDeclare(name string, durable, autoDelete, exclusiv
 }
 
 func (fake *FakeChannel) ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table) error {
-	// TODO 定義轉發的 pattern
+	fake.exchange[name] = &ExchangeStruct{
+		exchangeType: kind,
+		channelMatchCheck: make(map[string]func(queueName string) bool),
+	}
+
 	return nil
 }
 
+func (fake *FakeChannel) checkQueueExist(name string) {
+	if fake.channels[name] == nil {
+		fake.channels[name] = make(chan amqp.Delivery)
+	}
+}
+
 func (fake *FakeChannel) QueueBind(name, key, exchange string, noWait bool, args amqp.Table) error {
-	// TODO bind exchange
+	exg := fake.exchange[exchange]
+
+	exg.channelMatchCheck[name] = func(pubKey string) bool {
+		fake.checkQueueExist(pubKey)
+		if exg.exchangeType == "direct" {
+			return pubKey == key
+		} else if exg.exchangeType == "topic" {
+			isMatch, _ := regexp.MatchString(key, pubKey)
+			return isMatch
+
+		} else if exg.exchangeType == "fanout" {
+			// TODO
+		} else if exg.exchangeType == "headers" {
+			// TODO
+		} else {
+			fail.FailOnError(amqp.Error{
+				Reason: fmt.Sprintf("type %s unexpect", exg.exchangeType),
+				Code: 999,
+			},
+			"Unexpect exchange type")
+		}
+		return false
+	}
+
 	return nil
 }
 

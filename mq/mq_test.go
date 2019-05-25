@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const duration = 1 * time.Second
+const duration = 10 * time.Millisecond
 
 // Channel
 func TestAMQPAdapter_GetChannel(t *testing.T) {
@@ -31,11 +31,11 @@ func TestChannelAdapter_PublishAndConsume(t *testing.T) {
 		WaitResponse: false,
 		Data: []json.RawMessage{srvData},
 	}
-	err := fakeCh.Publish(msg.User, newMsg)
+	err := fakeCh.PublishService(msg.User, newMsg)
 	testutil.TestFailIfErr(t, err, "")
 
 
-	err = fakeCh.PublishNoWaitTo(msg.User, user.Validate, "",
+	err = fakeCh.PublishServiceNoWaitTo(msg.User, user.Validate, "",
 		&user.ValidateData{})
 	testutil.TestFailIfErr(t, err, "")
 
@@ -62,6 +62,129 @@ func TestChannelAdapter_PublishAndConsume(t *testing.T) {
 
 }
 
+func TestChannelAdapter_ExchangeDeclareAndBindQueue_Direct(t *testing.T) {
+	fakeCh := initFakeChannel()
+
+	q1, _ := fakeCh.QueueDeclare("queue-1", true, false, false, false)
+	q2, _ := fakeCh.QueueDeclare("queue-2", true, false, false, false)
+	fakeCh.ExchangeDeclare("exg", "direct", false, false, false, false, nil)
+
+	fakeCh.QueueBindEasy("queue-1", "q1", "exg")
+	fakeCh.QueueBindEasy("queue-2", "q2", "exg")
+
+
+	msg1 := q1.Consume("", false, false, false, false, nil)
+	msg2 := q2.Consume("", false, false, false, false, nil)
+
+	_ = fakeCh.Publish("exg", "q1", false, false,
+		amqp.Publishing{
+			Body: []byte("test"),
+		})
+
+	timer := time.NewTimer(duration)
+	select {
+	case d := <-msg1:
+		t.Log("get msg successful: ", d)
+	case d := <- msg2:
+		t.Error("wrong channel: ", d)
+	case <-timer.C:
+		t.Error("time out")
+	}
+
+
+	_ = fakeCh.Publish("exg", "q2", false, false,
+		amqp.Publishing{
+			Body: []byte("test"),
+		})
+	timer.Reset(duration)
+	select {
+	case d := <-msg1:
+		t.Error("wrong channel: ", d)
+	case d := <- msg2:
+		t.Log("get msg successful: ", d)
+	case <-timer.C:
+		t.Error("time out")
+	}
+
+	_ = fakeCh.Publish("exg", "q3", false, false,
+		amqp.Publishing{
+			Body: []byte("test"),
+		})
+	timer.Reset(duration)
+	select {
+	case d := <-msg1:
+		t.Error("wrong channel: ", d)
+	case d := <- msg2:
+		t.Error("wrong channel: ", d)
+	case <-timer.C:
+		t.Log("never receive")
+	}
+
+}
+
+func TestChannelAdapter_ExchangeDeclareAndBindQueue_Topic(t *testing.T) {
+	fakeCh := initFakeChannel()
+
+	q1, _ := fakeCh.QueueDeclare("queue-1", true, false, false, false)
+	q2, _ := fakeCh.QueueDeclare("queue-2", true, false, false, false)
+	fakeCh.ExchangeDeclare("exg", "topic", false, false, false, false, nil)
+
+	fakeCh.QueueBindEasy("queue-1", "q1.*", "exg")
+	fakeCh.QueueBindEasy("queue-2", "q2.*", "exg")
+
+
+	msg1 := q1.Consume("", false, false, false, false, nil)
+	msg2 := q2.Consume("", false, false, false, false, nil)
+
+	_ = fakeCh.Publish("exg", "q1.abc", false, false,
+		amqp.Publishing{
+			Body: []byte("test"),
+		})
+
+	timer := time.NewTimer(duration)
+	select {
+	case d := <-msg1:
+		t.Log("get msg successful: ", d)
+	case d := <- msg2:
+		t.Error("wrong channel: ", d)
+	case <-timer.C:
+		t.Error("time out")
+	}
+
+
+	_ = fakeCh.Publish("exg", "q2.abc", false, false,
+		amqp.Publishing{
+			Body: []byte("test"),
+		})
+	timer.Reset(duration)
+	select {
+	case d := <-msg1:
+		t.Error("wrong channel: ", d)
+	case d := <- msg2:
+		t.Log("get msg successful: ", d)
+	case <-timer.C:
+		t.Error("time out")
+	}
+
+	_ = fakeCh.Publish("exg", "q3.abc", false, false,
+		amqp.Publishing{
+			Body: []byte("test"),
+		})
+	timer.Reset(duration)
+	select {
+	case d := <-msg1:
+		t.Error("wrong channel: ", d)
+	case d := <- msg2:
+		t.Error("wrong channel: ", d)
+	case <-timer.C:
+		t.Log("never receive")
+	}
+
+}
+
+// TODO
+// func TestChannelAdapter_ExchangeDeclareAndBindQueue_Fanout(t *testing.T) {}
+// func TestChannelAdapter_ExchangeDeclareAndBindQueue_Headers(t *testing.T) {}
 
 // utils
 func initFakeChannel() IChannelAdapter {

@@ -10,6 +10,16 @@ import (
 )
 
 // -------------------------------------------
+// Error type
+// -------------------------------------------
+
+type NoResponseErr struct {}
+
+func (err NoResponseErr) Error() string {
+	return "Empty Response Configuration"
+}
+
+// -------------------------------------------
 // AMQP Interface Adapter
 // -------------------------------------------
 
@@ -41,14 +51,18 @@ type IAMQPAdapter interface {
 }
 
 type IChannelAdapter interface {
-	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool) (amqp.Queue, error)
-	QueueDeclareByQueueConfig(config msg.QueueConfig) (amqp.Queue, error)
+	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool) (IQueueAdapter, error)
+	QueueDeclareByQueueConfig(config msg.QueueConfig) (IQueueAdapter, error)
 	GetQueue(name string, durable, autoDelete, exclusive, noWait bool) IQueueAdapter
 	GetQueueWithArgs(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) IQueueAdapter
-	Publish(targetService msg.Service, cgMsg msg.CGMessage) error
-	PublishNoWaitTo(serviceName msg.Service, command msg.ServiceCommand, serial string, data msg.IServiceData) error
+	Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
+	PublishService(targetService msg.Service, cgMsg msg.CGMessage) error
+	PublishServiceNoWaitTo(serviceName msg.Service, command msg.ServiceCommand, serial string, data msg.IServiceData) error
+	ResponseService(targetService msg.Service, cgMsg msg.CGMessage) error
+	ResponseServiceNoWaitTo(serviceName msg.Service, command msg.ServiceCommand, serial string, data msg.IServiceData) error
 	ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table)
-	QueueBind(queueName, bindKey, exchangeName string)
+	QueueBind(queueName, bindKey, exchangeName string, noWait bool, args amqp.Table)
+	QueueBindEasy(queueName, bindKey, exchangeName string)
 	QOS(count, size int, global bool)
 	// TODO 需要一個直接指定 queue 的 publish
 	Close()
@@ -95,7 +109,19 @@ func (adp *AMQPAdapter) GetChannel() IChannelAdapter {
 // ChannelAdapter
 // -------------------------------------------
 
-func (adp *ChannelAdapter) Publish(targetService msg.Service, cgmsg msg.CGMessage) error {
+// NOTE low level api
+func (adp *ChannelAdapter) Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error {
+	err := adp.Channel.Publish(
+		exchange,
+		key,
+		false,
+		false,
+		msg)
+
+	return err
+}
+
+func (adp *ChannelAdapter) PublishService(targetService msg.Service, cgmsg msg.CGMessage) error {
 	if (cgmsg.WaitResponse && &cgmsg.ResponseName == nil) ||
 		(cgmsg.WaitResponse && cgmsg.Serial == "") {
 		return NoResponseErr{}
@@ -119,13 +145,7 @@ func (adp *ChannelAdapter) Publish(targetService msg.Service, cgmsg msg.CGMessag
 	return err
 }
 
-type NoResponseErr struct {}
-
-func (err NoResponseErr) Error() string {
-	return "Empty Response Configuration"
-}
-
-func (adp *ChannelAdapter) PublishNoWaitTo(service msg.Service, command msg.ServiceCommand,
+func (adp *ChannelAdapter) PublishServiceNoWaitTo(service msg.Service, command msg.ServiceCommand,
 	serial string, data msg.IServiceData) error {
 		err := adp.Channel.Publish(
 		service.QueueName(),
@@ -141,15 +161,56 @@ func (adp *ChannelAdapter) PublishNoWaitTo(service msg.Service, command msg.Serv
 		return err
 }
 
-func (adp *ChannelAdapter) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool) (amqp.Queue, error) {
-	q, err := adp.Channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, nil)
-	return q, err
+func (adp *ChannelAdapter) ResponseService(targetService msg.Service, cgmsg msg.CGMessage) error {
+	if (cgmsg.WaitResponse && &cgmsg.ResponseName == nil) ||
+		(cgmsg.WaitResponse && cgmsg.Serial == "") {
+		return NoResponseErr{}
+	}
+
+	appId := cgmsg.Serial
+	data, err := json.Marshal(cgmsg)
+	fail.FailOnError(err, "parse cg message error")
+	err = adp.Channel.Publish(
+		targetService.ResponseQueueName(),
+		"",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        data,
+			Timestamp:   time.Now(),
+			AppId:       appId,
+		})
+
+	return err
 }
 
-func (adp *ChannelAdapter) QueueDeclareByQueueConfig(config msg.QueueConfig) (amqp.Queue, error) {
+
+func (adp *ChannelAdapter) ResponseServiceNoWaitTo(service msg.Service, command msg.ServiceCommand,
+	serial string, data msg.IServiceData) error {
+		err := adp.Channel.Publish(
+		service.ResponseQueueName(),
+		"", // route key
+		false, //
+		false, //
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        msg.ToByteArray(data),
+			Timestamp:   time.Now(),
+			AppId: serial,
+		})
+		return err
+}
+
+func (adp *ChannelAdapter) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool) (IQueueAdapter, error) {
+	q, err := adp.Channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, nil)
+	return &QueueAdapter{Queue: &q, ChannelAdapter: adp, name: name}, err
+}
+
+func (adp *ChannelAdapter) QueueDeclareByQueueConfig(config msg.QueueConfig) (IQueueAdapter, error) {
 	name, durable, autoDelete, exclusive, noWait, args := config.Spread()
 	q, err := adp.Channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, args)
-	return q, err
+	return &QueueAdapter{Queue: &q, ChannelAdapter: adp, name: name}, err
 }
 
 func (adp *ChannelAdapter) GetQueue(name string, durable, autoDelete, exclusive, noWait bool) IQueueAdapter {
@@ -193,11 +254,16 @@ func (adp *ChannelAdapter) QOS(count, size int, global bool) {
 	adp.Channel.QOS(count, size, global)
 }
 
-func (adp *ChannelAdapter) QueueBind(queueName, bindKey, exchangeName string) {
-	// TODO
+func (adp *ChannelAdapter) QueueBind(queueName, bindKey, exchangeName string, noWait bool, args amqp.Table) {
+	adp.Channel.QueueBind(queueName, bindKey, exchangeName, false, nil)
+}
+
+func (adp *ChannelAdapter) QueueBindEasy(queueName, bindKey, exchangeName string) {
+	adp.QueueBind(queueName, bindKey, exchangeName, false, nil)
 }
 
 func (adp *ChannelAdapter) Close() {
+	// TODO
 	panic("implement me")
 }
 

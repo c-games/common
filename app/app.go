@@ -31,7 +31,7 @@ func Init() (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	exgName := "cg-exchanger" // TODO move
 
-	mqChAdp.ExchangeDeclare(exgName, "topic", true, false, false, false, nil)
+	mqChAdp.ExchangeDeclare(exgName, "route", true, false, false, false, nil)
 
 	mqChAdp.QueueBind(msg.Wallet.QueueName(), msg.Wallet.GetQueueBind(), exgName)
 	mqChAdp.QueueBind(msg.User.QueueName(), msg.User.GetQueueBind(), exgName)
