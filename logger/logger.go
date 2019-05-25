@@ -35,7 +35,7 @@ func Init(loggerQueueName string, channel mq.IChannelAdapter) {
 				logJson, err := json.Marshal(logMsg)
 				fail.FailOnError(err, "Parse Log Message Failed")
 
-				err = logger.mqChannel.Publish(
+				err = logger.mqChannel.PublishService(
 					msg.Logger,
 					msg.CGMessage{
 						Data: []json.RawMessage{logJson},
