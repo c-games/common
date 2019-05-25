@@ -2,9 +2,10 @@ package mq
 
 import (
 	"encoding/json"
-	"gitlab.3ag.xyz/core/backend/common/mq/msg"
-	"gitlab.3ag.xyz/core/backend/common/mq/msg/user"
-	"gitlab.3ag.xyz/core/backend/common/testutil"
+	"github.com/streadway/amqp"
+	"gitlab.3ag.xyz/backend/common/mq/msg"
+	"gitlab.3ag.xyz/backend/common/mq/msg/user"
+	"gitlab.3ag.xyz/backend/common/testutil"
 	"os"
 	"testing"
 	"time"

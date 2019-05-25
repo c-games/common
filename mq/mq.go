@@ -4,10 +4,11 @@ package mq
 import (
 	"encoding/json"
 	"github.com/streadway/amqp"
-	"gitlab.3ag.xyz/core/backend/common/fail"
-	"gitlab.3ag.xyz/core/backend/common/mq/msg"
+	"gitlab.3ag.xyz/backend/common/fail"
+	"gitlab.3ag.xyz/backend/common/mq/msg"
 	"time"
 )
+
 
 // -------------------------------------------
 // Error type

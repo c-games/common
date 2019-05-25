@@ -2,10 +2,10 @@ package app
 
 import (
 	"github.com/spf13/viper"
-	"gitlab.3ag.xyz/core/backend/common/db"
-	"gitlab.3ag.xyz/core/backend/common/logger"
-	"gitlab.3ag.xyz/core/backend/common/mq"
-	"gitlab.3ag.xyz/core/backend/common/mq/msg"
+	"gitlab.3ag.xyz/backend/common/db"
+	"gitlab.3ag.xyz/backend/common/logger"
+	"gitlab.3ag.xyz/backend/common/mq"
+	"gitlab.3ag.xyz/backend/common/mq/msg"
 )
 
 func Init() (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {

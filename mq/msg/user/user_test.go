@@ -1,8 +1,8 @@
 package user
 
 import (
-	"gitlab.3ag.xyz/core/backend/common/mq/msg"
-	"gitlab.3ag.xyz/core/backend/common/testutil"
+	"gitlab.3ag.xyz/backend/common/mq/msg"
+	"gitlab.3ag.xyz/backend/common/testutil"
 	"testing"
 )
 

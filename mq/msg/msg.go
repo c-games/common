@@ -2,7 +2,7 @@ package msg
 
 import (
 	"encoding/json"
-	"gitlab.3ag.xyz/core/backend/common/fail"
+	"gitlab.3ag.xyz/backend/common/fail"
 )
 
 type CGMessage struct {

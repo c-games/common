@@ -2,7 +2,7 @@ package db
 
 import (
 	"github.com/DATA-DOG/go-sqlmock"
-	"gitlab.3ag.xyz/core/backend/common/testutil"
+	"gitlab.3ag.xyz/backend/common/testutil"
 	"testing"
 )
 

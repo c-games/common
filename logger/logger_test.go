@@ -3,8 +3,8 @@ package logger
 import (
 	"encoding/json"
 	"github.com/streadway/amqp"
-	"gitlab.3ag.xyz/core/backend/common/mq"
-	"gitlab.3ag.xyz/core/backend/common/mq/msg"
+	"gitlab.3ag.xyz/backend/common/mq"
+	"gitlab.3ag.xyz/backend/common/mq/msg"
 	"os"
 	"testing"
 )

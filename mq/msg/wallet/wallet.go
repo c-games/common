@@ -1,6 +1,6 @@
 package wallet
 
-import "gitlab.3ag.xyz/core/backend/common/mq/msg"
+import "gitlab.3ag.xyz/backend/common/mq/msg"
 
 var (
 	Update msg.ServiceCommand = msg.NewCommand("update")

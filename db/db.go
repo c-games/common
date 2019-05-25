@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"gitlab.3ag.xyz/core/backend/common/fail"
+	"gitlab.3ag.xyz/backend/common/fail"
 	// "fmt"
 )
 
