@@ -66,8 +66,8 @@ func TestChannelAdapter_PublishAndConsume(t *testing.T) {
 func TestChannelAdapter_ExchangeDeclareAndBindQueue_Direct(t *testing.T) {
 	fakeCh := initFakeChannel()
 
-	q1, _ := fakeCh.QueueDeclare("queue-1", true, false, false, false)
-	q2, _ := fakeCh.QueueDeclare("queue-2", true, false, false, false)
+	q1, _ := fakeCh.QueueDeclare("queue-1", true, false, false, false, nil)
+	q2, _ := fakeCh.QueueDeclare("queue-2", true, false, false, false, nil)
 	fakeCh.ExchangeDeclare("exg", "direct", false, false, false, false, nil)
 
 	fakeCh.QueueBindEasy("queue-1", "q1", "exg")
@@ -126,18 +126,18 @@ func TestChannelAdapter_ExchangeDeclareAndBindQueue_Direct(t *testing.T) {
 func TestChannelAdapter_ExchangeDeclareAndBindQueue_Topic(t *testing.T) {
 	fakeCh := initFakeChannel()
 
-	q1, _ := fakeCh.QueueDeclare("queue-1", true, false, false, false)
-	q2, _ := fakeCh.QueueDeclare("queue-2", true, false, false, false)
-	fakeCh.ExchangeDeclare("exg", "topic", false, false, false, false, nil)
+	q1, _ := fakeCh.QueueDeclare("queue-1", true, false, false, false, nil)
+	q2, _ := fakeCh.QueueDeclare("queue-2", true, false, false, false, nil)
+	fakeCh.ExchangeDeclare("exg-topic", "topic", false, false, false, false, nil)
 
-	fakeCh.QueueBindEasy("queue-1", "q1.*", "exg")
-	fakeCh.QueueBindEasy("queue-2", "q2.*", "exg")
+	fakeCh.QueueBindEasy("queue-1", "q1.*", "exg-topic")
+	fakeCh.QueueBindEasy("queue-2", "q2.*", "exg-topic")
 
 
 	msg1 := q1.Consume("", false, false, false, false, nil)
 	msg2 := q2.Consume("", false, false, false, false, nil)
 
-	_ = fakeCh.Publish("exg", "q1.abc", false, false,
+	_ = fakeCh.Publish("exg-topic", "q1.abc", false, false,
 		amqp.Publishing{
 			Body: []byte("test"),
 		})

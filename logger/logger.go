@@ -27,7 +27,7 @@ func Init(loggerQueueName string, channel mq.IChannelAdapter) {
 			mqChannel: channel,
 		}
 
-		_, _ = channel.QueueDeclare(loggerQueueName, true, false, false, false)
+		_, _ = channel.QueueDeclare(loggerQueueName, true, false, false, false, nil)
 
 		go func() {
 			for logFromChann := range logger.channel {

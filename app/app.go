@@ -33,13 +33,13 @@ func Init() (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	mqChAdp.ExchangeDeclare(exgName, "route", true, false, false, false, nil)
 
-	mqChAdp.QueueBind(msg.Wallet.QueueName(), msg.Wallet.GetQueueBind(), exgName)
-	mqChAdp.QueueBind(msg.User.QueueName(), msg.User.GetQueueBind(), exgName)
-	mqChAdp.QueueBind(msg.Orders.QueueName(), msg.Orders.GetQueueBind(), exgName)
+	mqChAdp.QueueBindEasy(msg.Wallet.QueueName(), msg.Wallet.GetQueueBind(), exgName)
+	mqChAdp.QueueBindEasy(msg.User.QueueName(), msg.User.GetQueueBind(), exgName)
+	mqChAdp.QueueBindEasy(msg.Orders.QueueName(), msg.Orders.GetQueueBind(), exgName)
 
-	mqChAdp.QueueBind(msg.Wallet.ResponseQueueName(), msg.Wallet.GetResponseQueueBind(), exgName)
-	mqChAdp.QueueBind(msg.User.ResponseQueueName(), msg.User.GetResponseQueueBind(), exgName)
-	mqChAdp.QueueBind(msg.Orders.ResponseQueueName(), msg.Orders.GetResponseQueueBind(), exgName)
+	mqChAdp.QueueBindEasy(msg.Wallet.ResponseQueueName(), msg.Wallet.GetResponseQueueBind(), exgName)
+	mqChAdp.QueueBindEasy(msg.User.ResponseQueueName(), msg.User.GetResponseQueueBind(), exgName)
+	mqChAdp.QueueBindEasy(msg.Orders.ResponseQueueName(), msg.Orders.GetResponseQueueBind(), exgName)
 
 
 	mqChAdp.QOS(1, 0, false)

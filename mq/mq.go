@@ -3,6 +3,7 @@ package mq
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/streadway/amqp"
 	"gitlab.3ag.xyz/backend/common/fail"
 	"gitlab.3ag.xyz/backend/common/mq/msg"
@@ -26,6 +27,7 @@ func (err NoResponseErr) Error() string {
 
 type IConnection interface {
 	Channel() (*amqp.Channel, error)
+	Close() error
 }
 
 type IChannel interface {
@@ -37,6 +39,7 @@ type IChannel interface {
 	ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table) error
 	QueueBind(name, key, exchange string, noWait bool, args amqp.Table) error
 	Qos(prefetchCount, prefetchSize int, global bool) error
+	Close() error
 }
 
 // TODO Queue 尚未使用
@@ -50,7 +53,7 @@ type IAMQPAdapter interface {
 }
 
 type IChannelAdapter interface {
-	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool) (IQueueAdapter, error)
+	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (IQueueAdapter, error)
 	QueueDeclareByQueueConfig(config msg.QueueConfig) (IQueueAdapter, error)
 	GetQueue(name string, durable, autoDelete, exclusive, noWait bool) IQueueAdapter
 	GetQueueWithArgs(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) IQueueAdapter
@@ -63,6 +66,7 @@ type IChannelAdapter interface {
 	QueueBind(queueName, bindKey, exchangeName string, noWait bool, args amqp.Table)
 	QueueBindEasy(queueName, bindKey, exchangeName string)
 	QOS(count, size int, global bool)
+	Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error)
 	// TODO 需要一個直接指定 queue 的 publish
 	Close()
 }
@@ -85,7 +89,6 @@ type AMQPAdapter struct {
 type ChannelAdapter struct {
 	AMQPAdapter *AMQPAdapter
 	Channel IChannel
-	// Channel *amqp.Channel
 }
 
 type QueueAdapter struct {
@@ -111,11 +114,17 @@ func (adp *AMQPAdapter) GetChannel() IChannelAdapter {
 		ch, err = adp.Connect.Channel()
 	}
 
-	fail.FailOnError(err, "")
+	fail.FailOnError(err, "get channel failed")
 	return &ChannelAdapter{
 		AMQPAdapter: adp,
 		Channel: ch,
 	}
+}
+
+func (adp *AMQPAdapter) Close() {
+	//err := adp.Channel.Qos(count, size, global)
+	err := adp.Connect.Close()
+	fail.FailOnError(err, "Connect close failed")
 }
 
 func (adp *ChannelAdapter) QOS(count, size int, global bool) {
@@ -132,8 +141,8 @@ func (adp *ChannelAdapter) Publish(exchange, key string, mandatory, immediate bo
 	err := adp.Channel.Publish(
 		exchange,
 		key,
-		false,
-		false,
+		mandatory,
+		immediate,
 		msg)
 
 	return err
@@ -220,8 +229,8 @@ func (adp *ChannelAdapter) ResponseServiceNoWaitTo(service msg.Service, command 
 		return err
 }
 
-func (adp *ChannelAdapter) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool) (IQueueAdapter, error) {
-	q, err := adp.Channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, nil)
+func (adp *ChannelAdapter) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (IQueueAdapter, error) {
+	q, err := adp.Channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, args)
 	return &QueueAdapter{Queue: &q, ChannelAdapter: adp, name: name}, err
 }
 
@@ -276,9 +285,15 @@ func (adp *ChannelAdapter) QueueBindEasy(queueName, bindKey, exchangeName string
 	adp.QueueBind(queueName, bindKey, exchangeName, false, nil)
 }
 
+func (adp *ChannelAdapter) Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error) {
+	return adp.Channel.Consume(queue, consumer, autoAck, exclusive, noLocal, noWait, nil)
+}
+
 func (adp *ChannelAdapter) Close() {
-	// TODO
-	panic("implement me")
+	// TODO fix bug
+	// close channel failed: Exception (504) Reason: "channel/connection is not open"
+	_ = adp.Channel.Close()
+	//fail.FailOnError(err, "close channel failed")
 }
 
 
@@ -286,13 +301,10 @@ func (adp *ChannelAdapter) Close() {
 // QueueAdapter
 // -------------------------------------------
 
-func (chAdp *QueueAdapter) Consume(consumer string, autoAck, exclusive, noLocal,
-	noWait bool, args amqp.Table) <-chan amqp.Delivery {
-	// real version
-	deliver, err := chAdp.ChannelAdapter.Channel.Consume(chAdp.name, consumer, autoAck, exclusive, noLocal, noWait, args)
-	fail.FailOnError(err, "Consume failed")
+func (qAdp *QueueAdapter) Consume(consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) <-chan amqp.Delivery {
+	deliver, err := qAdp.ChannelAdapter.Channel.Consume(qAdp.name, consumer, autoAck, exclusive, noLocal, noWait, args)
+	fail.FailOnError(err, fmt.Sprintf("Consume failed: queue: %s", qAdp.name))
 	return deliver
-
 }
 
 // -------------------------------------------

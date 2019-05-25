@@ -57,6 +57,11 @@ func (fake *FakeConnection) Channel() (*amqp.Channel, error) {
 	return &amqp.Channel{}, nil
 }
 
+func (fake *FakeConnection) Close() error {
+	// NOTE do nothing
+	return nil
+}
+
 func GetFakeChannel() *FakeChannel {
 	return fakeChanelSinglton
 }
