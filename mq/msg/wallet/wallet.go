@@ -1,25 +1,20 @@
 package wallet
 
-import (
-)
+import "gitlab.3ag.xyz/backend/common/mq/msg"
 
-type WalletCommand string
-
-const (
-	Update WalletCommand = "update"
-	Validate WalletCommand = "validate"
-	Register WalletCommand = "register"
+var (
+	Update msg.ServiceCommand = msg.NewCommand("update")
+	Validate msg.ServiceCommand = msg.NewCommand("validate")
+	Register msg.ServiceCommand = msg.NewCommand("register")
 )
 
 type UpdateData struct {
-	Account string `json:"account"`
-	UserId string `json:"user_id"`
+	UserId int `json:"user_id"`
 	CreditChange float64 `json:"credit_change"`
 }
 
 type ValidateData struct {
-	Account string `json:"account"`
-	UserId string `json:"user_id"`
+	UserId int `json:"user_id"`
 	ExpectCredit float64 `json:"expect_credit"`
 }
 
@@ -28,8 +23,7 @@ type ValidateResponseData struct {
 }
 
 type RegisterData struct {
-	UserId string `json:"user_id"`
-	Account string `json:"account"`
+	UserId int `json:"user_id"`
 	DefaultCredit float64 `json:"default_credit"`
 }
 

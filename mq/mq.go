@@ -1,189 +1,321 @@
+// Package mq provides wrappers for amqp libraries
 package mq
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/streadway/amqp"
-	"gitlab.3ag.xyz/core/backend/common/fail"
+	"gitlab.3ag.xyz/backend/common/fail"
+	"gitlab.3ag.xyz/backend/common/mq/msg"
+	"time"
 )
 
-// 這個設計不太對，因為一個 connect 可以多 channel
-// 這個 scruct 記 channel 沒什麼意義
-type CgAmqp struct {
-	Conn *amqp.Connection
-	Ch *amqp.Channel
-	Queues map[string]*amqp.Queue // TODO remove
+
+// -------------------------------------------
+// Error type
+// -------------------------------------------
+
+type NoResponseErr struct {}
+
+func (err NoResponseErr) Error() string {
+	return "Empty Response Configuration"
 }
 
-// Message Queue Channel
-type MqChann struct {
-	Ch *amqp.Channel
+// -------------------------------------------
+// AMQP Interface Adapter
+// -------------------------------------------
+
+type IConnection interface {
+	Channel() (*amqp.Channel, error)
+	Close() error
 }
 
-type ICgAmqp interface {
-	GenChannel()
-	GenRoute(string)
-	GenQueue(string)
-	GenBindedQueue(string)
-	QOS()
-	CloseAll()
+type IChannel interface {
+	// 原本 amqp Channel 的 method
+	// TODO  還有沒用到的 Function 沒補
+	Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
+	Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error)
+	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (amqp.Queue, error)
+	ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table) error
+	QueueBind(name, key, exchange string, noWait bool, args amqp.Table) error
+	Qos(prefetchCount, prefetchSize int, global bool) error
+	Close() error
 }
 
-func GenConn(url string) CgAmqp {
-	conn, err := amqp.Dial(url)
-	fail.FailOnError(err, "Failed to connect to RabbitMQ")
-	// return CgAmqp{con, make(map[string]*amqp.Channel)}
-	return CgAmqp{Conn: conn, Queues: make(map[string]*amqp.Queue)}
+// TODO Queue 尚未使用
+
+// -------------------------------------------
+// Adapter Interface
+// -------------------------------------------
+
+type IAMQPAdapter interface {
+	GetChannel() IChannelAdapter
+}
+
+type IChannelAdapter interface {
+	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (IQueueAdapter, error)
+	QueueDeclareByQueueConfig(config msg.QueueConfig) (IQueueAdapter, error)
+	GetQueue(name string, durable, autoDelete, exclusive, noWait bool) IQueueAdapter
+	GetQueueWithArgs(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) IQueueAdapter
+	Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
+	PublishService(targetService msg.Service, cgMsg msg.CGMessage) error
+	PublishServiceNoWaitTo(serviceName msg.Service, command msg.ServiceCommand, serial string, data msg.IServiceData) error
+	ResponseService(targetService msg.Service, cgMsg msg.CGMessage) error
+	ResponseServiceNoWaitTo(serviceName msg.Service, command msg.ServiceCommand, serial string, data msg.IServiceData) error
+	ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table)
+	QueueBind(queueName, bindKey, exchangeName string, noWait bool, args amqp.Table)
+	QueueBindEasy(queueName, bindKey, exchangeName string)
+	QOS(count, size int, global bool)
+	Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error)
+	// TODO 需要一個直接指定 queue 的 publish
+	Close()
+}
+
+type IQueueAdapter interface {
+	Consume(consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) <-chan amqp.Delivery
+}
+
+// -------------------------------------------
+// Adapter Structure
+// -------------------------------------------
+
+type AMQPAdapter struct {
+	Fake bool
+	Connect IConnection
+	// Connect interface{}
+	// Connect *amqp.Connection
+}
+
+type ChannelAdapter struct {
+	AMQPAdapter *AMQPAdapter
+	Channel IChannel
+}
+
+type QueueAdapter struct {
+	name string
+	ChannelAdapter *ChannelAdapter
+	Queue *amqp.Queue
 }
 
 
-func (ctx *CgAmqp) GenChannel() {
-	ch, err := ctx.Conn.Channel()
-	fail.FailOnError(err, "Failed to open a channel")
-	ctx.Ch = ch
-}
+// -------------------------------------------
+// AMQPAdapter
+// -------------------------------------------
 
-func (ctx *CgAmqp) CloseAll() {
-	_ = ctx.Ch.Close()
-	_ = ctx.Conn.Close()
-}
-
-func (ctx *CgAmqp) GenExchange(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table) {
-	if ctx.Ch == nil {
-		fail.FailOnError(nil, "Create a Route before the Channel")
-	}
-	err := ctx.Ch.ExchangeDeclare(name, kind, durable, autoDelete, internal, noWait, args)
-
-	fail.FailOnError(err, "Failed to declare an exchange")
-}
-
-func (ctx *CgAmqp) GenRoute(exgName string) {
-	ctx.GenExchange(exgName, "direct", true, false, false, false, nil)
-}
-
-
-func (ctx *CgAmqp) GenQueue(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) {
-	if ctx.Ch == nil {
-		fail.FailOnError(nil, "Create a Queue before the Channel")
-	}
-
-	q, err := ctx.Ch.QueueDeclare(
-		name,    // name
-		durable, // durable
-		autoDelete, // delete when usused
-		exclusive,  // exclusive
-		noWait, // no-wait
-		args,   // arguments
-	)
-
-	fail.FailOnError(err, "Failed to declare a queue")
-
-	ctx.Queues[name] = &q
-}
-
-// NOTE 用來給不存 ctx 用的 queue (因為是無名 queue)
-// TODO 和 GenQueue 覆的要再收成一個 function
-func (ctx *CgAmqp) GenRandomQueue(durable, autoDelete, exclusive, noWait bool, args amqp.Table) amqp.Queue {
-	if ctx.Ch == nil {
-		fail.FailOnError(nil, "Create a Queue before the Channel")
-	}
-
-	q, err := ctx.Ch.QueueDeclare(
-		"",    // name
-		durable, // durable
-		autoDelete, // delete when usused
-		exclusive,  // exclusive
-		noWait, // no-wait
-		args,   // arguments
-	)
-
-	fail.FailOnError(err, "Failed to declare a queue")
-
-	return q
-}
-
-func (ctx *CgAmqp) BindQueue(queueName, bindKey, exgName string) {
-	err := ctx.Ch.QueueBind(
-		queueName, // queue name
-		bindKey, // routing key
-		exgName, // exchange
-		false,
-		nil,
-	)
-
-	fail.FailOnError(err, "Failed to bind a queue")
-}
-
-// TODO deprecated
-func (ctx *CgAmqp) GenBindedQueue(qName, bindKey, exgName string) {
-	var autoDelete bool
-	// NOTE 如果 qName 是空白的時，rabbitmq 會用一個 random name，因此這個 random queue 要刪
-	if qName == "" {
-		autoDelete = true
+func (adp *AMQPAdapter) GetChannel() IChannelAdapter {
+	var ch IChannel
+	var err error
+	if adp.Fake {
+		// TODO workaround
+		fc := FakeConnection{}
+		_, _ = fc.Channel()
+		ch = GetFakeChannel()
 	} else {
-		autoDelete = false
+		ch, err = adp.Connect.Channel()
 	}
-	ctx.GenQueue(qName, true, autoDelete, true, false, nil)
-	ctx.BindQueue(qName, bindKey, exgName)
+
+	fail.FailOnError(err, "get channel failed")
+	return &ChannelAdapter{
+		AMQPAdapter: adp,
+		Channel: ch,
+	}
 }
 
-func (ctx *CgAmqp) QOS(count, size int, global bool) {
-	ctx.Ch.Qos(count, size, global)
+func (adp *AMQPAdapter) Close() {
+	//err := adp.Channel.Qos(count, size, global)
+	err := adp.Connect.Close()
+	fail.FailOnError(err, "Connect close failed")
 }
 
-func (ctx *CgAmqp) Consume(queueName, comsumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) <-chan amqp.Delivery {
-		msgs, err := ctx.Ch.Consume(
-		queueName, // queue
-		comsumer,     // consumer
-		autoAck,   // auto ack
-		exclusive,  // exclusive
-		noLocal,  // no local
-		noWait,  // no wait
-		args,    // args
-	)
-	fail.FailOnError(err, "Failed to register a consumer")
-
-	return msgs
+func (adp *ChannelAdapter) QOS(count, size int, global bool) {
+	err := adp.Channel.Qos(count, size, global)
+	fail.FailOnError(err, "QOS setup failed")
 }
 
-//
-func (ctx *CgAmqp) GetChannel() *MqChann {
-	ch, err := ctx.Conn.Channel()
-	fail.FailOnError(err, "Failed to open a channel")
-	return &MqChann{ Ch: ch }
+// -------------------------------------------
+// ChannelAdapter
+// -------------------------------------------
+
+// NOTE low level api
+func (adp *ChannelAdapter) Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error {
+	err := adp.Channel.Publish(
+		exchange,
+		key,
+		mandatory,
+		immediate,
+		msg)
+
+	return err
 }
 
-// --------------
-//
-//
-func (chann *MqChann) GenQueue(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) *amqp.Queue {
-	q, err := chann.Ch.QueueDeclare(
+func (adp *ChannelAdapter) PublishService(targetService msg.Service, cgmsg msg.CGMessage) error {
+	if (cgmsg.WaitResponse && &cgmsg.ResponseName == nil) ||
+		(cgmsg.WaitResponse && cgmsg.Serial == "") {
+		return NoResponseErr{}
+	}
+
+	appId := cgmsg.Serial
+	data, err := json.Marshal(cgmsg)
+	fail.FailOnError(err, "parse cg message error")
+	err = adp.Channel.Publish(
+		targetService.QueueName(),
+		"",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        data,
+			Timestamp:   time.Now(),
+			AppId:       appId,
+		})
+
+	return err
+}
+
+func (adp *ChannelAdapter) PublishServiceNoWaitTo(service msg.Service, command msg.ServiceCommand,
+	serial string, data msg.IServiceData) error {
+		err := adp.Channel.Publish(
+		service.QueueName(),
+		"", // route key
+		false, //
+		false, //
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        msg.ToByteArray(data),
+			Timestamp:   time.Now(),
+			AppId: serial,
+		})
+		return err
+}
+
+func (adp *ChannelAdapter) ResponseService(targetService msg.Service, cgmsg msg.CGMessage) error {
+	if (cgmsg.WaitResponse && &cgmsg.ResponseName == nil) ||
+		(cgmsg.WaitResponse && cgmsg.Serial == "") {
+		return NoResponseErr{}
+	}
+
+	appId := cgmsg.Serial
+	data, err := json.Marshal(cgmsg)
+	fail.FailOnError(err, "parse cg message error")
+	err = adp.Channel.Publish(
+		targetService.ResponseQueueName(),
+		"",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        data,
+			Timestamp:   time.Now(),
+			AppId:       appId,
+		})
+
+	return err
+}
+
+
+func (adp *ChannelAdapter) ResponseServiceNoWaitTo(service msg.Service, command msg.ServiceCommand,
+	serial string, data msg.IServiceData) error {
+		err := adp.Channel.Publish(
+		service.ResponseQueueName(),
+		"", // route key
+		false, //
+		false, //
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        msg.ToByteArray(data),
+			Timestamp:   time.Now(),
+			AppId: serial,
+		})
+		return err
+}
+
+func (adp *ChannelAdapter) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (IQueueAdapter, error) {
+	q, err := adp.Channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, args)
+	return &QueueAdapter{Queue: &q, ChannelAdapter: adp, name: name}, err
+}
+
+func (adp *ChannelAdapter) QueueDeclareByQueueConfig(config msg.QueueConfig) (IQueueAdapter, error) {
+	name, durable, autoDelete, exclusive, noWait, args := config.Spread()
+	q, err := adp.Channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, args)
+	return &QueueAdapter{Queue: &q, ChannelAdapter: adp, name: name}, err
+}
+
+func (adp *ChannelAdapter) GetQueue(name string, durable, autoDelete, exclusive, noWait bool) IQueueAdapter {
+	return adp.GetQueueWithArgs(name, durable, autoDelete, exclusive, noWait, nil)
+}
+
+func (adp *ChannelAdapter) GetQueueWithArgs(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) IQueueAdapter {
+	q, err := adp.Channel.QueueDeclare(
 		name,    // name
 		durable, // durable
 		autoDelete, // delete when usused
 		exclusive,  // exclusive
 		noWait, // no-wait
-		args,   // arguments
+		nil,   // arguments
 	)
 
 	fail.FailOnError(err, "Failed to declare a queue")
 
-	return &q
+	return &QueueAdapter{
+		name: name,
+		ChannelAdapter: adp,
+		Queue: &q,
+	}
+
 }
 
-func (ch *MqChann) Consume(queueName, comsumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) <-chan amqp.Delivery {
-	msgs, err := ch.Ch.Consume(
-		queueName, // queue
-		comsumer,     // consumer
-		autoAck,   // auto ack
-		exclusive,  // exclusive
-		noLocal,  // no local
-		noWait,  // no wait
-		args,    // args
+func (adp *ChannelAdapter) ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table) {
+	err := adp.Channel.ExchangeDeclare(
+		name,    // name
+		kind,    // kind
+		durable, // durable
+		autoDelete, // delete when usused
+		internal,  // exclusive
+		noWait, // no-wait
+		nil,   // arguments
 	)
-	fail.FailOnError(err, "Failed to register a consumer")
-
-	return msgs
+	fail.FailOnError(err, "Failed to declare a exchange")
 }
 
-func (ch *MqChann) Close() {
-	defer ch.Close()
+func (adp *ChannelAdapter) QueueBind(queueName, bindKey, exchangeName string, noWait bool, args amqp.Table) {
+	adp.Channel.QueueBind(queueName, bindKey, exchangeName, false, nil)
+}
+
+func (adp *ChannelAdapter) QueueBindEasy(queueName, bindKey, exchangeName string) {
+	adp.QueueBind(queueName, bindKey, exchangeName, false, nil)
+}
+
+func (adp *ChannelAdapter) Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error) {
+	return adp.Channel.Consume(queue, consumer, autoAck, exclusive, noLocal, noWait, nil)
+}
+
+func (adp *ChannelAdapter) Close() {
+	// TODO fix bug
+	// close channel failed: Exception (504) Reason: "channel/connection is not open"
+	_ = adp.Channel.Close()
+	//fail.FailOnError(err, "close channel failed")
+}
+
+
+// -------------------------------------------
+// QueueAdapter
+// -------------------------------------------
+
+func (qAdp *QueueAdapter) Consume(consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) <-chan amqp.Delivery {
+	deliver, err := qAdp.ChannelAdapter.Channel.Consume(qAdp.name, consumer, autoAck, exclusive, noLocal, noWait, args)
+	fail.FailOnError(err, fmt.Sprintf("Consume failed: queue: %s", qAdp.name))
+	return deliver
+}
+
+// -------------------------------------------
+// Util Function
+// -------------------------------------------
+
+func GenerateConnect(url string) *AMQPAdapter {
+	conn, err := amqp.Dial(url)
+	fail.FailOnError(err, "Connect to RabbitMq failed")
+
+	return &AMQPAdapter{
+		Connect: conn,
+	}
 }

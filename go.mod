@@ -1,4 +1,4 @@
-module gitlab.3ag.xyz/core/backend/common
+module gitlab.3ag.xyz/backend/common
 
 go 1.12
 

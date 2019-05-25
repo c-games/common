@@ -1,21 +1,26 @@
 package orders
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"gitlab.3ag.xyz/backend/common/mq/msg"
+)
 
-type OrdersCommand string
-
-const (
-	Bid OrdersCommand = "bid" // 下單
-	Withdraw OrdersCommand = "withdraw" // 撤單
-	Fetch OrdersCommand = "fetch" // 撈訂單
-	Reverse OrdersCommand = "reverse" // 撤將
-	Update OrdersCommand = "update" // TODO
+var (
+	// 下單
+	Bid msg.ServiceCommand = msg.NewCommand("bid")
+	// 撤單
+	Withdraw msg.ServiceCommand = msg.NewCommand("withdraw")
+	// 撈訂單
+	Fetch msg.ServiceCommand = msg.NewCommand("fetch")
+	// 撤將
+	Reverse msg.ServiceCommand = msg.NewCommand("reverse")
+	// TODO remove
+	Update msg.ServiceCommand = msg.NewCommand("update")
 	// TODO 開奬
 )
 
-// TODO 下單 api 要改設計
+
 type BidData struct {
-	Account string `json:"account"`
 	Token string   `json:"token"`
 	Dollar float64 `json:"dollar"`
 	GameId string `json:"game_id"`
@@ -44,14 +49,13 @@ type FetchResponseData struct {
 	Dollar float64 `json:"dollar"`
 }
 
-
+// TODO
 type UpdateData struct {
 	Account string `json:"account"`
 	Token string `json:"token"`
 }
 
-
-
+// TODO
 type ReverseData struct {
 	Account string `json:"account"`
 	Token string `json:"token"`

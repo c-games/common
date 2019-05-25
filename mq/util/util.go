@@ -10,6 +10,8 @@ import (
 
 // TODO 對這種可能很多 type 的，用 interface{} 真的好嗎 (不是一個開放 type，而是有限 type)
 //func sendResponse(ch *amqp.Channel, targetQueueName string, responseData *userMsg.ResponseData) {
+
+// TODO remove
 func SendResponse(ch *amqp.Channel, targetQueueName string, responseData interface{}, serial string) {
 	resJson, _ := json.Marshal(responseData)
 	ch.Publish(

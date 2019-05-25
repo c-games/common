@@ -3,16 +3,12 @@ package db
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"gitlab.3ag.xyz/core/backend/common/fail"
+	"gitlab.3ag.xyz/backend/common/fail"
 	// "fmt"
 )
 
-type DB struct {
-	Conn *sql.DB
-}
-
-type ConnPool struct {
-	// TODO
+type DBAdapter struct {
+	Connect *sql.DB
 }
 
 var dbConfig string
@@ -21,39 +17,54 @@ func Init(config string) {
 	dbConfig = config
 }
 
-//TODO golang 沒有 overload, 所以先這樣寫
-func AnotherConnect(dbUrl string) *DB {
+func ConnectBy(dbUrl string) *DBAdapter {
 	db, err := sql.Open("mysql", dbUrl)
 	fail.FailOnError(err, "Failed to connect db")
 
 	err = db.Ping() // This DOES open a connection if necessary. This makes sure the database is accessible
-	// fail.FailOnError(err, fmt.Sprintf("Error on opening database connection: %s", err.Error()))
-	fail.FailOnError(err, "Failed to ping db")
+	fail.FailOnError(err, "Error on opening database connection:")
 
-	rlt := DB { Conn: db }
+	rlt := DBAdapter{ Connect: db }
 	return &rlt
 }
 
-func Connect() *DB {
-	return AnotherConnect(dbConfig)
+func ConnectByDB(db *sql.DB) *DBAdapter {
+	return &DBAdapter{ Connect: db}
 }
 
-func (d *DB) Exec(query string, args ...interface{}) sql.Result {
-	result, err := d.Conn.Exec(query, args...)
+func Connect() *DBAdapter {
+	return ConnectBy(dbConfig)
+}
+
+func (d *DBAdapter) Exec(query string, args ...interface{}) sql.Result {
+	var result sql.Result
+	var err error
+
+	if len(args) == 0 {
+		result, err = d.Connect.Exec(query)
+	} else {
+		result, err = d.Connect.Exec(query, args...)
+	}
+
 	fail.FailOnError(err, "Failed to query")
 	return result
 }
 
 // TODO query 時要改一下
-func (d *DB) PrepareQuery(query string, args ...interface{}) *sql.Rows {
-	stmt, err := d.Conn.Prepare(query)
+func (d *DBAdapter) PrepareQuery(query string, args ...interface{}) *sql.Rows {
+	stmt, err := d.Connect.Prepare(query)
+	fail.FailOnError(err, "Failed to prepare")
 	rows, err := stmt.Query(args...)
 	fail.FailOnError(err, "Failed to query")
 	return rows
 }
 
-func (d *DB)QueryRow(query string, args ...interface{}) *sql.Row {
-	row := d.Conn.QueryRow(query, args...)
+func (d *DBAdapter) Close() error {
+	return d.Connect.Close()
+}
+
+func (d *DBAdapter)QueryRow(query string, args ...interface{}) *sql.Row {
+	row := d.Connect.QueryRow(query, args...)
 	return row
 }
 
