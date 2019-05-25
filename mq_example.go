@@ -72,9 +72,10 @@ func main() {
 	chAdp.QueueBindEasy("queue-2", "route-q-2", "exg-demo")
 	chAdp.QueueBindEasy("queue-3", "route-q-3", "exg-demo")
 
-	//msg2 := q2.Consume("", false, false, false, false, nil)
+
 	// 這邊一樣可以用原本的 Channel consume 方式，不過 err 也會回傳出來
 	msg2, err := chAdp.Consume("queue-2", "", false, false, false, false, nil)
+	// msg2 := q2.Consume("", false, false, false, false, nil) // <- 用 queue consume 的方式
 	fail.FailOnError(err, "Consume queue-2 failed")
 	msg3 := q3.Consume("", false, false, false, false, nil)
 
