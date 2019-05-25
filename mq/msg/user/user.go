@@ -1,7 +1,7 @@
 package user
 
 import (
-	"gitlab.3ag.xyz/core/backend/common/mq/msg"
+	"gitlab.3ag.xyz/backend/common/mq/msg"
 	"time"
 )
 
