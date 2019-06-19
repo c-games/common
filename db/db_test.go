@@ -28,15 +28,25 @@ func TestDBAdapter_QueryRow(t *testing.T) {
 
 	adp := ConnectByDB(db)
 
+	game_id := "5cf53a25-14d3-4a3a-87fe-cf473f74419b"
 	mock.ExpectQuery("SELECT (.+) FROM orders WHERE game_id = (.+)").
-		WillReturnRows(sqlmock.NewRows([]string{"test", "123"}))
+		WithArgs(game_id).
+		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1234))
 
 	mock.ExpectClose()
 
-	rows := adp.QueryRow("SELECT id FROM orders WHERE game_id = ?", 1234)
+	row := adp.QueryRow("SELECT id FROM orders WHERE game_id = ?", game_id)
 
-	// TODO How To check rows?
-	t.Log(rows)
+	var (
+		id int
+	)
+	err = row.Scan(&id)
+	testutil.TestFailIfErr(t, err, "occur fail in err")
+
+	if id != 1234 {
+
+		t.Errorf("Can't scan value id: %v", id)
+	}
 
 	err = adp.Close()
 	testutil.TestFailIfErr(t, err, "Can't not close db connection")

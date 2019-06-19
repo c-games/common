@@ -8,7 +8,7 @@ import (
 	"gitlab.3ag.xyz/backend/common/mq/msg"
 )
 
-func Init() (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
+func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	// RabbitMQ part
 	// ----------------------------------------
@@ -46,7 +46,7 @@ func Init() (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	// NOTE generate a logger channel
 	chLogger := mqAdp.GetChannel()
-	logger.Init(msg.Logger.QueueName(), chLogger)
+	logger.Init(appname, msg.Logger.QueueName(), chLogger)
 
 
 	dbConf := viper.GetString("db")

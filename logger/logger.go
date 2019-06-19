@@ -19,9 +19,11 @@ type LogMessage struct {
 }
 
 var logger *loggerStruct
+var serviceName string
 
-func Init(loggerQueueName string, channel mq.IChannelAdapter) {
+func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
 	if logger == nil {
+		serviceName = name
 		logger = &loggerStruct{
 			channel: make(chan string),
 			mqChannel: channel,

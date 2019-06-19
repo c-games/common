@@ -63,19 +63,36 @@ func (d *DBAdapter) Close() error {
 	return d.Connect.Close()
 }
 
+func (d *DBAdapter)Query(query string, args ...interface{}) (*sql.Rows, error) {
+	rows, err := d.Connect.Query(query, args...)
+	return rows, err
+}
+
 func (d *DBAdapter)QueryRow(query string, args ...interface{}) *sql.Row {
 	row := d.Connect.QueryRow(query, args...)
 	return row
 }
 
+func (adp *DBAdapter) PrepareExec(query string, args...interface{}) *sql.Result {
+	stmt, err := adp.Connect.Prepare(query)
+	fail.FailOnError(err, "Failed to prepare")
+	rlt, err := stmt.Exec(args...)
+	fail.FailOnError(err, "Failed to exec")
+	return &rlt
+}
+
+func (adp *DBAdapter) Prepare(query string) *sql.Stmt {
+	stmt, err := adp.Connect.Prepare(query)
+	fail.FailOnError(err, "Failed to prepare")
+	return stmt
+}
 
 // support functions
-//
+// TODO Deprecated
 func IfNoRowOr(err error, fn func(), noRowFn func()) {
-
 	if err == sql.ErrNoRows {
-		fn()
-	} else {
 		noRowFn()
+	} else {
+		fn()
 	}
 }

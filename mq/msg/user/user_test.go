@@ -7,7 +7,7 @@ import (
 )
 
 func TestFetcData(t *testing.T) {
-	data := &FetchData{
+	data := &QueryData{
 		Token: "",
 	}
 	expect := `{"token":""}`
