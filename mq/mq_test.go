@@ -26,11 +26,11 @@ func TestChannelAdapter_PublishAndConsume(t *testing.T) {
 
 	srvData, _ := json.Marshal(&user.ValidateData{})
 	newMsg := msg.CGMessage{
-		Serial: "a-test-serial-number",
-		Command: string(user.Validate.GetCommand()),
-		ResponseName: msg.User,
-		WaitResponse: false,
-		Data: []json.RawMessage{srvData},
+		Serial:        123456,
+		Command:       string(user.Validate.GetCommand()),
+		ResponseQueue: msg.User.QueueName(),
+		WaitResponse:  false,
+		Data:          []json.RawMessage{srvData},
 	}
 	err := fakeCh.PublishService(msg.User, newMsg)
 	testutil.TestFailIfErr(t, err, "")
@@ -49,16 +49,13 @@ func TestChannelAdapter_PublishAndConsume(t *testing.T) {
 	case d := <-resMsg:
 		var resData msg.CGMessage
 		_ = json.Unmarshal(d.Body, &resData)
-		if resData.Serial != d.AppId {
+		if resData.Serial != 123456 {
 			t.Error("Unexpect Value")
 		} else {
 			t.Logf("pass, AppId = data.Serial = %s", d.AppId)
 		}
-
-		break;
 	case <-timer.C:
 		t.Error("time out")
-		break
 	}
 
 }

@@ -40,7 +40,7 @@ func setup() {
 	fakeConnect := mq.CreateFakeAMQPAdapter()
 	fakeChannel = fakeConnect.GetChannel()
 	fakeQueue = fakeChannel.GetQueue(msg.Logger.QueueName(), true, false, false, false)
-	Init(msg.Logger.QueueName(), fakeChannel)
+	Init("unit test", msg.Logger.QueueName(), fakeChannel)
 }
 func shutdown() {}
 func TestMain(m *testing.M) {

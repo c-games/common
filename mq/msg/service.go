@@ -3,10 +3,10 @@ package msg
 import "github.com/streadway/amqp"
 
 type Service struct {
-	name string
-	command []IServiceCommand
-	queueConfig *QueueConfig
-	responseQueueConfig *QueueConfig
+	name string                       `json:"name"`
+	command []IServiceCommand         `json:"command"`
+	queueConfig *QueueConfig          `json:"queue_config"`
+	responseQueueConfig *QueueConfig  `json:"response_queue_config"`
 }
 
 type QueueConfig struct {
@@ -34,6 +34,9 @@ func NewCommand(commandName string) ServiceCommand {
 func (c *ServiceCommand) GetCommand() string {
 	return c.name
 }
+
+
+var NullCommand ServiceCommand = ServiceCommand{name: "null"}
 
 var (
 	User Service = Service{
