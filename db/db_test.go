@@ -12,11 +12,11 @@ func TestDBAdapter_Exec(t *testing.T) {
 
 	adp := ConnectByDB(db)
 
-	mock.ExpectExec(`SELECT (.+) FROM orders WHERE 1`).
+	mock.ExpectExec(`SELECT (.+) FROM order WHERE 1`).
 		WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectClose()
 
-	_ = adp.Exec("SELECT id FROM orders WHERE 1")
+	_ = adp.Exec("SELECT id FROM order WHERE 1")
 
 	err = adp.Close()
 	testutil.TestFailIfErr(t, err, "Can't not close db connection")
@@ -29,13 +29,13 @@ func TestDBAdapter_QueryRow(t *testing.T) {
 	adp := ConnectByDB(db)
 
 	game_id := "5cf53a25-14d3-4a3a-87fe-cf473f74419b"
-	mock.ExpectQuery("SELECT (.+) FROM orders WHERE game_id = (.+)").
+	mock.ExpectQuery("SELECT (.+) FROM order WHERE game_id = (.+)").
 		WithArgs(game_id).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1234))
 
 	mock.ExpectClose()
 
-	row := adp.QueryRow("SELECT id FROM orders WHERE game_id = ?", game_id)
+	row := adp.QueryRow("SELECT id FROM order WHERE game_id = ?", game_id)
 
 	var (
 		id int
@@ -58,14 +58,14 @@ func TestDBAdapter_PrepareQuery(t *testing.T) {
 
 	adp := ConnectByDB(db)
 
-	mock.ExpectPrepare("SELECT (.+) FROM orders WHERE game_id = (.+)")
+	mock.ExpectPrepare("SELECT (.+) FROM order WHERE game_id = (.+)")
 
-	mock.ExpectQuery("SELECT (.+) FROM orders WHERE game_id = (.+)").
+	mock.ExpectQuery("SELECT (.+) FROM order WHERE game_id = (.+)").
 		WillReturnRows(sqlmock.NewRows([]string{"test", "123"}))
 
 	mock.ExpectClose()
 
-	rows := adp.PrepareQuery("SELECT id FROM orders WHERE game_id = ?", 1234)
+	rows := adp.PrepareQuery("SELECT id FROM order WHERE game_id = ?", 1234)
 
 	// TODO How To check rows?
 	t.Log(rows)

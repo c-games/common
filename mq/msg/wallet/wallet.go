@@ -84,6 +84,7 @@ var (
 	reasonReward   int = 2 // 中獎
 	reasonWithdraw int = 3 // 撤獎
 	reasonRollback int = 4
+	reasonUpdateOrder int = 5
 )
 
 func ReasonBid() int {
@@ -100,4 +101,8 @@ func ReasonWithdraw() int {
 
 func ReasonRollback() int {
 	return reasonRollback
+}
+
+func ReasonUpdateOrder() int {
+	return reasonUpdateOrder
 }
