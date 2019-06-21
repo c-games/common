@@ -60,22 +60,22 @@ var (
 	}
 
 	Orders Service = Service{
-		name: "orders",
+		name: "order",
 		queueConfig: &QueueConfig{
-			name: "cg-orders",
+			name: "cg-order",
 			durable: true,
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders",
+			bindKey: "order",
 		},
 		responseQueueConfig: &QueueConfig{
-			name: "cg-orders-pipeline-response",
+			name: "cg-order-pipeline-response",
 			durable: true,
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders-res",
+			bindKey: "order-res",
 		},
 	}
 
@@ -87,7 +87,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders",
+			bindKey: "order",
 		},
 		responseQueueConfig: &QueueConfig{
 			name: "cg-wallet-pipeline-response",
@@ -95,7 +95,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders-res",
+			bindKey: "order-res",
 		},
 	}
 

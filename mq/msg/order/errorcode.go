@@ -1,11 +1,12 @@
-package orders
+package order
 
 // User Error Code Defined
 // TODO must be const
 var (
-	codeSuccess           int = 0
-	codeWrongOrderId      int = 1
-
+	codeSuccess         int = 0
+	codeWrongOrderId    int = 1
+	codeCreditNotEnough int = 2
+	codeWrongGameIdOrRound int = 3
 	codeDbFailed          int = 9
 
 )
@@ -24,4 +25,12 @@ func CodeWrongOrderId() int {
 
 func CodeDbFailed() int {
 	return codeDbFailed
+}
+
+func CodeCreditNotEnough() int {
+	return codeCreditNotEnough
+}
+
+func CodeWrongGameIdOrRound() int {
+	return codeWrongGameIdOrRound
 }
