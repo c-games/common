@@ -25,19 +25,19 @@ func WalletCommand(commandString string) msg.ServiceCommand {
 }
 
 type UpdateData struct {
-	UserId int64 `json:"user_id"`
-	CreditChange float64 `json:"credit_change"`
-	Reason int `json:reason`
-	ReasonMessage string `json:reason_message`
+	UserId        int64   `json:"user_id"`
+	CreditChange  float64 `json:"credit_change"`
+	Reason        int     `json:"reason"`
+	ReasonMessage string  `json:"reason_message"`
 }
 
 type ValidateData struct {
-	UserId int64 `json:"user_id"`
+	UserId       int64   `json:"user_id"`
 	ExpectCredit float64 `json:"expect_credit"`
 }
 
 type RegisterData struct {
-	UserId int64 `json:"user_id"`
+	UserId        int64   `json:"user_id"`
 	DefaultCredit float64 `json:"default_credit"`
 }
 
@@ -47,62 +47,4 @@ type QueryData struct {
 
 type ResponseData struct {
 	Credit float64 `json:"credit"`
-}
-
-// TODO must be const
-var (
-	codeSuccess         int = 0
-	codeWalletNotFound  int = 1
-	codeCreditNotEnough int = 2
-	codeRegisterFailed  int = 3
-	codeNoUpdateReason  int = 4
-)
-func CodeSuccess() int {
-	return codeSuccess
-}
-
-func CodeWalletNotFound() int {
-	return codeWalletNotFound
-}
-
-func CodeCreditNotEnough() int {
-	return codeCreditNotEnough
-}
-
-func CodeRegisterFailed() int {
-	return codeRegisterFailed
-}
-
-func CodeNoUpadetReason() int {
-	return codeNoUpdateReason
-}
-
-// Reason
-var (
-	reasonOther    int = 0
-	reasonBid      int = 1 // 下注
-	reasonReward   int = 2 // 中獎
-	reasonWithdraw int = 3 // 撤獎
-	reasonRollback int = 4
-	reasonUpdateOrder int = 5
-)
-
-func ReasonBid() int {
-	return reasonBid
-}
-
-func ReasonReward() int {
-	return reasonReward
-}
-
-func ReasonWithdraw() int {
-	return reasonWithdraw
-}
-
-func ReasonRollback() int {
-	return reasonRollback
-}
-
-func ReasonUpdateOrder() int {
-	return reasonUpdateOrder
 }
