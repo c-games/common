@@ -71,9 +71,12 @@ func Logf(format string, args...interface{}) {
 }
 
 func Log(message string) {
-	if logger == nil {
-		fail.FailOnError( errors.New("Logger channel is nil"), "Failed to send log")
-	} else {
-		logger.channel <- message
+	assertLoggerAvailable()
+	logger.channel <- LogStruct{
+		Type: "log",
+		Command: "unknown",
+		Data: message,
+	}
+}
 	}
 }
