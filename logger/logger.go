@@ -78,5 +78,20 @@ func Log(message string) {
 		Data: message,
 	}
 }
+func Print(serial int64, who, action, result, message string ) {
+	assertLoggerAvailable()
+
+	log := LogStruct{
+		Type: "print",
+		Command: "print",
+		Data: msg.PrintRecord{
+			Serial: serial,
+			Who: who,
+			Action: action,
+			Result: result,
+			Message: message,
+		},
 	}
+
+	logger.channel <- log
 }
