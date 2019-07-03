@@ -7,5 +7,6 @@ const (
 	Code_WrongOrderId       int = 1
 	Code_CreditNotEnough    int = 2
 	Code_WrongGameIdOrRound int = 3
-	Code_DbFailed           int = 9
+	Code_InvalidateUser     int = 4
+	Code_DbFailed           int = 8
 )
