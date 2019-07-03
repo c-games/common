@@ -4,18 +4,23 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/streadway/amqp"
 	"gitlab.3ag.xyz/backend/common/fail"
 	"gitlab.3ag.xyz/backend/common/mq"
 	"gitlab.3ag.xyz/backend/common/mq/msg"
+	"time"
 )
 
-type loggerStruct struct {
-	channel chan string
-	mqChannel mq.IChannelAdapter
+type LogStruct struct {
+	Type string
+	Command string
+	Data interface{}
 }
 
-type LogMessage struct {
-	Message string `json:"message"`
+
+type loggerStruct struct {
+	channel chan LogStruct
+	mqChannel mq.IChannelAdapter
 }
 
 var logger *loggerStruct
@@ -24,26 +29,37 @@ var serviceName string
 func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
 	if logger == nil {
 		serviceName = name
+
 		logger = &loggerStruct{
-			channel: make(chan string),
+			channel: make(chan LogStruct),
 			mqChannel: channel,
 		}
 
 		_, _ = channel.QueueDeclare(loggerQueueName, true, false, false, false, nil)
 
 		go func() {
-			for logFromChann := range logger.channel {
-				logMsg := LogMessage{ Message: logFromChann }
-				logJson, err := json.Marshal(logMsg)
-				fail.FailOnError(err, "Parse Log Message Failed")
+			for log := range logger.channel {
+				var body []byte
+				switch log.Type {
+				case "log":
+					body = prepareLogMessage(log.Command, log.Data)
+				case "print":
+					body = prepareLogMessage("print", log.Data)
+				default:
+					fail.FailOnError(errors.New("unknown log command"), "")
+				}
+				err := logger.mqChannel.Publish(
+					"",
+					msg.Logger.QueueName(),
+					false,
+					false,
+					amqp.Publishing{
+						ContentType: "application/json",
+						Body:        body,
+						Timestamp:   time.Now(),
+					})
 
-				err = logger.mqChannel.PublishService(
-					msg.Logger,
-					msg.CGMessage{
-						Data: []json.RawMessage{logJson},
-					},
-				)
-				fail.FailOnError(err, "[logger] publish faled")
+				fail.FailOnError(err, "[logger-gorutine] publish faled")
 			}
 		}()
 	}
