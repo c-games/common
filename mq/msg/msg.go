@@ -21,8 +21,10 @@ type CGResponseMessage struct {
 }
 
 type LoggerMessage struct {
-	Id string `json:"id"`
-	Record json.RawMessage `json:"record"`
+	Command string            `json:"id"`
+	From    string `json:"from"`
+	Node    int `json:"node"`
+	Record  []json.RawMessage `json:"record"`
 }
 
 type IServiceData interface {
@@ -31,9 +33,21 @@ type IServiceData interface {
 	// ToByteArray() []byte
 }
 
+type PrintRecord struct {
+	Serial int64
+	Who string
+	Action string
+	Result string
+	Message string
+}
+
 type MessageData interface {
 	Get(string) interface{}
 	ToStruct()
+}
+
+func (msg *LoggerMessage) FirstRecord() json.RawMessage {
+	return msg.Record[0]
 }
 
 func ToStruct(body []byte) CGMessage {
