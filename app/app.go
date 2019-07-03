@@ -16,7 +16,6 @@ func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	// NOTE 當 order 一開始後，subscribe 一個 channel 是收 order 處理的
 	mqAdp := mq.GenerateConnect(rabbitMqConf)
-	// mqCtx := mq.GenConn(rabbitMqConf)
 
 	mqChAdp := mqAdp.GetChannel()
 
