@@ -46,6 +46,10 @@ type MessageData interface {
 	ToStruct()
 }
 
+func (msg *CGMessage) FirstData() json.RawMessage {
+	return msg.Data[0]
+}
+
 func (msg *LoggerMessage) FirstRecord() json.RawMessage {
 	return msg.Record[0]
 }
