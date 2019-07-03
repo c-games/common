@@ -65,11 +65,31 @@ func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
 	}
 }
 
+func prepareLogMessage(command string, data interface{}) []byte {
+
+	record, err := json.Marshal(data)
+	fail.FailOnError(err, "marshal failed")
+
+	logmsg, err := json.Marshal(msg.LoggerMessage{
+		Command: command,
+		Record: []json.RawMessage{record},
+	})
+
+	fail.FailOnError(err, "marshal failed")
+	return logmsg
+}
+
+func preparePrintMessage() []byte {
+	return nil
+}
+
 func assertLoggerAvailable() {
 	if logger == nil {
 		fail.FailOnError( errors.New("Logger channel is nil"), "Failed to send log")
 	}
 }
+
+
 func Logf(format string, args...interface{}) {
 	msg := fmt.Sprintf(format, args...)
 	Log(msg)
