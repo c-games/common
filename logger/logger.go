@@ -65,6 +65,11 @@ func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
 	}
 }
 
+func assertLoggerAvailable() {
+	if logger == nil {
+		fail.FailOnError( errors.New("Logger channel is nil"), "Failed to send log")
+	}
+}
 func Logf(format string, args...interface{}) {
 	msg := fmt.Sprintf(format, args...)
 	Log(msg)
