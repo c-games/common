@@ -24,10 +24,6 @@ func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.User.GetQueueConfig())
 	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Orders.GetQueueConfig())
 
-	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Wallet.GetResponseQueueConfig())
-	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.User.GetResponseQueueConfig())
-	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Orders.GetResponseQueueConfig())
-
 
 	exgName := "cg-exchanger" // TODO move
 
@@ -41,6 +37,9 @@ func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 	mqChAdp.QueueBindEasy(msg.User.ResponseQueueName(), msg.User.GetResponseQueueBind(), exgName)
 	mqChAdp.QueueBindEasy(msg.Orders.ResponseQueueName(), msg.Orders.GetResponseQueueBind(), exgName)
 
+	_, _ = mqChAdp.QueueDeclare(msg.User.ResponseQueueName(), true, false, false, false, nil)
+	_, _ = mqChAdp.QueueDeclare(msg.Orders.ResponseQueueName(), true, false, false, false, nil)
+	_, _ = mqChAdp.QueueDeclare(msg.Wallet.ResponseQueueName(), true, false, false, false, nil)
 
 	mqChAdp.QOS(1, 0, false)
 
