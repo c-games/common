@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"gitlab.3ag.xyz/backend/common/fail"
-	// "fmt"
 )
 
 type DBAdapter struct {
