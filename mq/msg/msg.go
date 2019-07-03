@@ -6,7 +6,7 @@ import (
 )
 
 type CGMessage struct {
-	Serial        int               `json:"serial"`
+	Serial        int64               `json:"serial"`
 	ResponseQueue string            `json:"response_queue"`
 	Command       string            `json:"command"`
 	WaitResponse  bool              `json:"wait_response"`
@@ -14,7 +14,7 @@ type CGMessage struct {
 }
 
 type CGResponseMessage struct {
-	Serial        int               `json:"serial"`
+	Serial        int64               `json:"serial"`
 	Command       string            `json:"command"`
 	ErrorCode     int               `json:"error_code"`
 	Data          []json.RawMessage `json:"data"`
@@ -54,7 +54,7 @@ func ToByteArray(d interface{}) []byte {
 	return json
 }
 
-func PackCgMessage(serial int, data[]byte) []byte {
+func PackCgMessage(serial int64, data[]byte) []byte {
 	cgMessage := &CGMessage{
 		Serial: serial,
 		Data: []json.RawMessage{data},
