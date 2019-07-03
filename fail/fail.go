@@ -28,8 +28,15 @@ func getFrame(skipFrames int) runtime.Frame {
 
     return frame
 }
+
 func FailOnError(err error, msg string) {
 	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
+		frame := getFrame(2)
+		fn := frame.Function
+		file := frame.File
+		line := frame.Line
+		log.Fatalf("[file:%s, %v, fn: %s]  %s: %s",
+			file, line, fn,
+			msg, err)
 	}
 }
