@@ -6,129 +6,131 @@ import (
 )
 
 var (
-	Register msg.ServiceCommand = msg.NewCommand("register")
-	Login    msg.ServiceCommand = msg.NewCommand("login")
-	Logout   msg.ServiceCommand = msg.NewCommand("logout")
-	Token    msg.ServiceCommand = msg.NewCommand("token")
-	Validate msg.ServiceCommand = msg.NewCommand("validate")
-	Query msg.ServiceCommand = msg.NewCommand("query")
-	QueryUserOdds msg.ServiceCommand = msg.NewCommand("query_user_odds")
-	QueryUserLimit msg.ServiceCommand = msg.NewCommand("query_user_limit")
-	Update   msg.ServiceCommand = msg.NewCommand("update")
-	UpdateUserOdds   msg.ServiceCommand = msg.NewCommand("update_user_odds")
-	UpdateUserLimit   msg.ServiceCommand = msg.NewCommand("update_user_limit")
+	Register        msg.ServiceCommand = msg.NewCommand("register")
+	Login           msg.ServiceCommand = msg.NewCommand("login")
+	Logout          msg.ServiceCommand = msg.NewCommand("logout")
+	Token           msg.ServiceCommand = msg.NewCommand("token")
+	Validate        msg.ServiceCommand = msg.NewCommand("validate")
+	Query           msg.ServiceCommand = msg.NewCommand("query")
+	QueryUserOdds   msg.ServiceCommand = msg.NewCommand("query_user_odds")
+	QueryUserLimit  msg.ServiceCommand = msg.NewCommand("query_user_limit")
+	Update          msg.ServiceCommand = msg.NewCommand("update")
+	UpdateUserOdds  msg.ServiceCommand = msg.NewCommand("update_user_odds")
+	UpdateUserLimit msg.ServiceCommand = msg.NewCommand("update_user_limit")
 )
-
-
 
 type QueryData struct {
 	Id int64 `json:"user_id"`
 }
 
-
-type QueryResponse struct {
-	UserId int64       `json:"user_id"`
-	AgentId int        `json:"agent_id"`
-	Account string      `json:"account"`
-	Name string         `json:"name"`
-	Email string        `json:"email"`
-	Birthday time.Time  `json:"birthday"`
-	Mobile string       `json:"mobile"`
-	Qq string           `json:"qq"`
-	Wechat string       `json:"wechat"`
-}
-
 type LoginData struct {
-	AgentId  int `json:"agent_id"`
+	MasterAgentId int `json:"master_agent_id"`
+	AgentId  int    `json:"agent_id"`
 	Account  string `json:"account"`
 	Password string `json:"password"`
 	Ip       string `json:"ip"`
-	Platform string `json:"platform"`
-}
-
-type LoginResponse struct {
-	AgentId  int `json:"agent_id"`
-	Account  string `json:"account"`
-	NewToken string `json:"new_token"`
-	TokenExpire time.Time `json:"token_expire"`
+	Platform int `json:"platform"`
 }
 
 type RegisterData struct {
-	AgentId  int `json:"agent_id"`
-	Account  string `json:"account"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Mobile   string `json:"mobile"`
-	Qq       string `json:"qq"`
-	Wechat   string `json:"wechat"`
-	Ip       string `json:"ip"`
-	Platform int    `json:"platform"`
+	MasterAgentId int    `json:"master_agent_id"`
+	AgentId       int    `json:"agent_id"`
+	Account       string `json:"account"`
+	Name          string `json:"name"`
+	Email         string `json:"email"`
+	Password      string `json:"password"`
+	Mobile        string `json:"mobile"`
+	Qq            string `json:"qq"`
+	Wechat        string `json:"wechat"`
+	Ip            string `json:"ip"`
+	Platform      int    `json:"platform"`
 }
 
 type LogoutData struct {
-	Id int64 `json:user_id`
+	Id int64 `json:"user_id"`
 }
 
 type GeneralData struct {
-	Id int64 `json:user_id`
+	Id int64 `json:"user_id"`
 }
 
 type ValidateData struct {
-	Token    string `json:"token"`
-}
-
-type ValidateResponse struct {
-	Id    int64 `json:"user_id"`
+	Token string `json:"token"`
 }
 
 type QueryUserData struct {
 	UserId int64 `json:"user_id"`
-	LotteryId int `json:"lottery_id"`
+	GameId int   `json:"game_id"`
 }
 
+// TODO deprecated update struct 用不到
 type UpdateData struct {
-	UserId int64 `json:"user_id"`
-	LotteryId int `json:"lottery_id"`
-	Account  string `json:"account"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Mobile   string `json:"mobile"`
-	Qq       string `json:"qq"`
-	Wechat   string `json:"wechat"`
-	Ip       string `json:"ip"`
+	UserId   int64     `json:"user_id"`
+	// GameId   int       `json:"game_id"`
+	Account  string    `json:"account"`
+	Name     string    `json:"name"`
+	Email    string    `json:"email"`
+	Password string    `json:"password"`
+	Mobile   string    `json:"mobile"`
+	Qq       string    `json:"qq"`
+	Wechat   string    `json:"wechat"`
+	Ip       string    `json:"ip"`
 	Time     time.Time `json:"time"`
-	Platform string `json:"platform"`
+	Platform string    `json:"platform"`
 }
 
 type UpdateUserOddsData struct {
-	UserId int64 `json:"user_id"`
-	LotteryId int `json:"lottery_id"`
-	Odds string `json:"odds"`
+	UserId    int64  `json:"user_id"`
+	GameId int    `json:"game_id"`
+	Odds      string `json:"odds"`
 }
 
 type UpdateUserLimitData struct {
-	UserId int64 `json:"user_id"`
-	LotteryId int `json:"lottery_id"`
-	Limit string `json:"limit"`
+	UserId int64  `json:"user_id"`
+	GameId int    `json:"game_id"`
+	Limit  string `json:"limit"`
 }
 
+// Response data:
+
 type QueryUserResponse struct {
-	UserId int64 `json:"user_id"`
-	LotteryId int `json:"lottery_id"`
-	Odds string `json:"odds"`
+	UserId int64  `json:"user_id"`
+	GameId int    `json:"game_id"`
+	Odds   string `json:"odds"`
+}
+type QueryResponse struct {
+	UserId   int64     `json:"user_id"`
+	AgentId  int       `json:"agent_id"`
+	MasterAgentId int `json:"master_agent_id"`
+	Account  string    `json:"account"`
+	Name     string    `json:"name"`
+	Email    string    `json:"email"`
+	Birthday time.Time `json:"birthday"`
+	Mobile   string    `json:"mobile"`
+	Qq       string    `json:"qq"`
+	Wechat   string    `json:"wechat"`
+}
+
+type LoginResponse struct {
+	MasterAgentId int `json:"master_agent_id"`
+	AgentId     int       `json:"agent_id"`
+	Account     string    `json:"account"`
+	NewToken    string    `json:"new_token"`
+	TokenExpire time.Time `json:"token_expire"`
+}
+
+type ValidateResponse struct {
+	Id int64 `json:"user_id"`
 }
 
 type QueryUserLimitResponse struct {
-	UserId int64 `json:"user_id"`
-	LotteryId int `json:"lottery_id"`
-	Limit string `json:"limit"`
+	UserId int64  `json:"user_id"`
+	GameId int    `json:"game_id"`
+	Limit  string `json:"limit"`
 }
 
-
 func UserCommand(commandString string) msg.ServiceCommand {
-	switch commandString{
+	switch commandString {
 	case "register":
 		return Register
 	case "login":
