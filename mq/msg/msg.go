@@ -6,7 +6,7 @@ import (
 )
 
 type CGMessage struct {
-	Serial        int               `json:"serial"`
+	Serial        int64               `json:"serial"`
 	ResponseQueue string            `json:"response_queue"`
 	Command       string            `json:"command"`
 	WaitResponse  bool              `json:"wait_response"`
@@ -14,15 +14,17 @@ type CGMessage struct {
 }
 
 type CGResponseMessage struct {
-	Serial        int               `json:"serial"`
+	Serial        int64               `json:"serial"`
 	Command       string            `json:"command"`
 	ErrorCode     int               `json:"error_code"`
 	Data          []json.RawMessage `json:"data"`
 }
 
 type LoggerMessage struct {
-	Id string `json:"id"`
-	Record json.RawMessage `json:"record"`
+	Command string            `json:"id"`
+	From    string `json:"from"`
+	Node    int `json:"node"`
+	Record  []json.RawMessage `json:"record"`
 }
 
 type IServiceData interface {
@@ -31,9 +33,25 @@ type IServiceData interface {
 	// ToByteArray() []byte
 }
 
+type PrintRecord struct {
+	Serial int64
+	Who string
+	Action string
+	Result string
+	Message string
+}
+
 type MessageData interface {
 	Get(string) interface{}
 	ToStruct()
+}
+
+func (msg *CGMessage) FirstData() json.RawMessage {
+	return msg.Data[0]
+}
+
+func (msg *LoggerMessage) FirstRecord() json.RawMessage {
+	return msg.Record[0]
 }
 
 func ToStruct(body []byte) CGMessage {
@@ -54,7 +72,7 @@ func ToByteArray(d interface{}) []byte {
 	return json
 }
 
-func PackCgMessage(serial int, data[]byte) []byte {
+func PackCgMessage(serial int64, data[]byte) []byte {
 	cgMessage := &CGMessage{
 		Serial: serial,
 		Data: []json.RawMessage{data},
