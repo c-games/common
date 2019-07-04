@@ -80,10 +80,7 @@ type IQueueAdapter interface {
 // -------------------------------------------
 
 type AMQPAdapter struct {
-	Fake bool
 	Connect IConnection
-	// Connect interface{}
-	// Connect *amqp.Connection
 }
 
 type ChannelAdapter struct {
@@ -103,17 +100,7 @@ type QueueAdapter struct {
 // -------------------------------------------
 
 func (adp *AMQPAdapter) GetChannel() IChannelAdapter {
-	var ch IChannel
-	var err error
-	if adp.Fake {
-		// TODO workaround
-		fc := FakeConnection{}
-		_, _ = fc.Channel()
-		ch = GetFakeChannel()
-	} else {
-		ch, err = adp.Connect.Channel()
-	}
-
+	ch, err := adp.Connect.Channel()
 	fail.FailOnError(err, "get channel failed")
 	return &ChannelAdapter{
 		AMQPAdapter: adp,
@@ -149,12 +136,12 @@ func (adp *ChannelAdapter) Publish(exchange, key string, mandatory, immediate bo
 }
 
 func (adp *ChannelAdapter) PublishService(targetService msg.Service, cgmsg msg.CGMessage) error {
-	if (cgmsg.WaitResponse && &cgmsg.ResponseName == nil) ||
-		(cgmsg.WaitResponse && cgmsg.Serial == "") {
+	if (cgmsg.WaitResponse && &cgmsg.ResponseQueue == nil) ||
+		(cgmsg.WaitResponse) { //&& cgmsg.Serial == nil) {
 		return NoResponseErr{}
 	}
 
-	appId := cgmsg.Serial
+	// appId := cgmsg.Serial
 	data, err := json.Marshal(cgmsg)
 	fail.FailOnError(err, "parse cg message error")
 	err = adp.Channel.Publish(
@@ -166,7 +153,7 @@ func (adp *ChannelAdapter) PublishService(targetService msg.Service, cgmsg msg.C
 			ContentType: "application/json",
 			Body:        data,
 			Timestamp:   time.Now(),
-			AppId:       appId,
+			// AppId:       appId,   // NOTE appid 是 amqp 的 serial，目前還沒用到
 		})
 
 	return err
@@ -189,12 +176,12 @@ func (adp *ChannelAdapter) PublishServiceNoWaitTo(service msg.Service, command m
 }
 
 func (adp *ChannelAdapter) ResponseService(targetService msg.Service, cgmsg msg.CGMessage) error {
-	if (cgmsg.WaitResponse && &cgmsg.ResponseName == nil) ||
-		(cgmsg.WaitResponse && cgmsg.Serial == "") {
+	if (cgmsg.WaitResponse && &cgmsg.ResponseQueue == nil) ||
+		(cgmsg.WaitResponse) { // && cgmsg.Serial == nil) {
 		return NoResponseErr{}
 	}
 
-	appId := cgmsg.Serial
+	// appId := cgmsg.Serial
 	data, err := json.Marshal(cgmsg)
 	fail.FailOnError(err, "parse cg message error")
 	err = adp.Channel.Publish(
@@ -206,7 +193,7 @@ func (adp *ChannelAdapter) ResponseService(targetService msg.Service, cgmsg msg.
 			ContentType: "application/json",
 			Body:        data,
 			Timestamp:   time.Now(),
-			AppId:       appId,
+			// AppId:       appId, // NOTE amqp 用的 serial，目前沒用到
 		})
 
 	return err

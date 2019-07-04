@@ -3,10 +3,10 @@ package msg
 import "github.com/streadway/amqp"
 
 type Service struct {
-	name string
-	command []IServiceCommand
-	queueConfig *QueueConfig
-	responseQueueConfig *QueueConfig
+	name string                       `json:"name"`
+	command []IServiceCommand         `json:"command"`
+	queueConfig *QueueConfig          `json:"queue_config"`
+	responseQueueConfig *QueueConfig  `json:"response_queue_config"`
 }
 
 type QueueConfig struct {
@@ -35,6 +35,9 @@ func (c *ServiceCommand) GetCommand() string {
 	return c.name
 }
 
+
+var NullCommand ServiceCommand = ServiceCommand{name: "null"}
+
 var (
 	User Service = Service{
 		name: "user",
@@ -57,22 +60,22 @@ var (
 	}
 
 	Orders Service = Service{
-		name: "orders",
+		name: "order",
 		queueConfig: &QueueConfig{
-			name: "cg-orders",
+			name: "cg-order",
 			durable: true,
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders",
+			bindKey: "order",
 		},
 		responseQueueConfig: &QueueConfig{
-			name: "cg-orders-pipeline-response",
+			name: "cg-order-pipeline-response",
 			durable: true,
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders-res",
+			bindKey: "order-res",
 		},
 	}
 
@@ -84,7 +87,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders",
+			bindKey: "order",
 		},
 		responseQueueConfig: &QueueConfig{
 			name: "cg-wallet-pipeline-response",
@@ -92,7 +95,7 @@ var (
 			autoDelete: false,
 			exclusive: false,
 			noWait: false,
-			bindKey: "orders-res",
+			bindKey: "order-res",
 		},
 	}
 

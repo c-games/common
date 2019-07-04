@@ -3,32 +3,58 @@ package wallet
 import "gitlab.3ag.xyz/backend/common/mq/msg"
 
 var (
-	Update msg.ServiceCommand = msg.NewCommand("update")
+	Update   msg.ServiceCommand = msg.NewCommand("update")
 	Validate msg.ServiceCommand = msg.NewCommand("validate")
 	Register msg.ServiceCommand = msg.NewCommand("register")
+	Query    msg.ServiceCommand = msg.NewCommand("query")
 )
 
 type UpdateData struct {
-	UserId int `json:"user_id"`
-	CreditChange float64 `json:"credit_change"`
+	MasterAgentId int     `json:"master_agent_id"`
+	AgentId       int     `json:"agent_id"`
+	UserId        int64   `json:"user_id"`
+	CreditChange  float64 `json:"credit_change"`
+	Reason        int     `json:"reason"`
+	ReasonMessage string  `json:"reason_message"`
 }
 
 type ValidateData struct {
-	UserId int `json:"user_id"`
-	ExpectCredit float64 `json:"expect_credit"`
-}
-
-type ValidateResponseData struct {
-	Enough bool `json:"enough"`
+	MasterAgentId int     `json:"master_agent_id"`
+	AgentId       int     `json:"agent_id"`
+	UserId        int64   `json:"user_id"`
+	ExpectCredit  float64 `json:"expect_credit"`
 }
 
 type RegisterData struct {
-	UserId int `json:"user_id"`
+	MasterAgentId int     `json:"master_agent_id"`
+	AgentId       int     `json:"agent_id"`
+	UserId        int64   `json:"user_id"`
 	DefaultCredit float64 `json:"default_credit"`
 }
 
+type QueryData struct {
+	MasterAgentId int   `json:"master_agent_id"`
+	AgentId       int   `json:"agent_id"`
+	UserId        int64 `json:"user_id"`
+}
+
+// response data
+
 type ResponseData struct {
-	Message string `json:"message"`
 	Credit float64 `json:"credit"`
-	ErrorCode int `json:"error_code"`
+}
+
+func WalletCommand(commandString string) msg.ServiceCommand {
+	switch commandString {
+	case "update":
+		return Update
+	case "validate":
+		return Validate
+	case "register":
+		return Register
+	case "query":
+		return Query
+	default:
+		return msg.NullCommand
+	}
 }

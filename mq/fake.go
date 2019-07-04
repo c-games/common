@@ -15,13 +15,23 @@ var fakeChanelSinglton *FakeChannel
 func CreateFakeAMQPAdapter() IAMQPAdapter {
 	if fakeAdapterSingleton == nil{
 		fakeAdapterSingleton = &AMQPAdapter{
-			Fake: true,
 			Connect: &FakeConnection{},
-			// Connect: &amqp.Connection{},
 		}
 	}
 
 	return fakeAdapterSingleton
+}
+
+func CreateFakeChannel() IChannelAdapter {
+
+	fc := FakeConnection{}
+	_, _ = fc.Channel()
+	ch := GetFakeChannel()
+
+	return &ChannelAdapter{
+		AMQPAdapter: &AMQPAdapter{Connect: &fc},
+		Channel: ch,
+	}
 }
 
 type FakeAMQPAdapter struct {
@@ -44,7 +54,6 @@ type FakeChannel struct {
 // -------------------------------------------
 // FakeConnection
 // -------------------------------------------
-
 func (fake *FakeConnection) Channel() (*amqp.Channel, error) {
 	if allChannel == nil {
 		allChannel = make(map[string]chan amqp.Delivery)
