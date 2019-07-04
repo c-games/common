@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"gitlab.3ag.xyz/backend/common/fail"
-	// "fmt"
 )
 
 type DBAdapter struct {
@@ -73,12 +72,14 @@ func (d *DBAdapter)QueryRow(query string, args ...interface{}) *sql.Row {
 	return row
 }
 
-func (adp *DBAdapter) PrepareExec(query string, args...interface{}) *sql.Result {
+func (adp *DBAdapter) PrepareExec(query string, args...interface{}) sql.Result {
 	stmt, err := adp.Connect.Prepare(query)
 	fail.FailOnError(err, "Failed to prepare")
+
 	rlt, err := stmt.Exec(args...)
+
 	fail.FailOnError(err, "Failed to exec")
-	return &rlt
+	return rlt
 }
 
 func (adp *DBAdapter) Prepare(query string) *sql.Stmt {
