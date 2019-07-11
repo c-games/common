@@ -20,13 +20,6 @@ type CGResponseMessage struct {
 	Data          []json.RawMessage `json:"data"`
 }
 
-type LoggerMessage struct {
-	Command string            `json:"id"`
-	From    string `json:"from"`
-	Node    int `json:"node"`
-	Record  []json.RawMessage `json:"record"`
-}
-
 type IServiceData interface {
 	// TODO 如果訂了這個就變成是 data type 都要 implement 了
 	// ToJson() string
@@ -48,10 +41,6 @@ type MessageData interface {
 
 func (msg *CGMessage) FirstData() json.RawMessage {
 	return msg.Data[0]
-}
-
-func (msg *LoggerMessage) FirstRecord() json.RawMessage {
-	return msg.Record[0]
 }
 
 func ToStruct(body []byte) CGMessage {
