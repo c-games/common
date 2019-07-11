@@ -29,15 +29,15 @@ type QueryOrderByRoundData struct {
 
 type QueryOrderByUserData struct {
 	UserId int64 `json:"user_id"`
+	BeginDate string `json:"begin_date"`
+	EndDate string `json:"end_date"`
 }
 
 type QueryOrderByAgentData struct {
 	MasterAgentId int `json:"master_agent_id"`
 	AgentId int `json:"agent_id"`
-}
-
-type QueryOrderByMasterAgentData struct {
-	MasterAgentId int `json:"master_agent_id"`
+	BeginDate string `json:"begin_date"`
+	EndDate string `json:"end_date"`
 }
 
 type PlaceOrderData struct {
@@ -64,7 +64,6 @@ type DrawResultData struct {
 	GameId  int     `json:"game_id"`
 	Round   int64   `json:"round"`
 	OrderId int64   `json:"order_id"`
-	UserId  int64   `json:"user_id"`
 	WinLose int     `json:"win_lose"`
 	Payout  float64 `json:"payout"`
 }
@@ -79,7 +78,7 @@ type FetchData struct {
 type UpdateData struct {
 	Id           int64   `json:"order_id"`
 	ChangeCredit float64 `json:"change_credit"`
-	Record       string  `json:"record"`
+	Target       string  `json:"target"`
 }
 
 // response
@@ -118,10 +117,8 @@ type PlaceOrderResponse struct {
 }
 
 type DrawResultResponse struct {
-	GameId  int   `json:"game_id"`
-	Round   int64 `json:"round"`
 	OrderId int64 `json:"order_id"`
-	UserId  int64 `json:"user_id"`
+	WalletUpdate bool `json:"wallet_update"`
 }
 
 type WithdrawResultResponse struct {
@@ -144,27 +141,4 @@ type ReverseData struct {
 	Token   string `json:"token"`
 }
 
-func OrderCommand(commandString string) msg.ServiceCommand {
-	switch commandString {
-	case "query_order":
-		return QueryOrder
-	case "query_order_by_round":
-		return QueryOrderByRound
-	case "query_order_by_user":
-		return QueryOrderByUser
-	case "query_order_by_agent":
-		return QueryOrderByAgent
-	case "query_order_by_master_agent":
-		return QueryOrderByMasterAgent
-	case "update_order":
-		return UpdateOrder
-	case "place_order":
-		return PlaceOrder
-	case "open_result":
-		return DrawResult
-	case "withdraw_result":
-		return WithdrawResult
-	default:
-		return msg.NullCommand
-	}
-}
+
