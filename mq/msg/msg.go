@@ -27,11 +27,13 @@ type IServiceData interface {
 }
 
 type PrintRecord struct {
-	Serial int64
-	Who string
-	Action string
-	Result string
-	Message string
+	Serial int64 `json:"serial"`
+	Time string `json:"time"`
+	Who string `json:"who"`
+	Action string `json:"action"`
+	ErrorCode int `json:"error_code"`
+	Result string `json:"result"`
+	Message string `json:"message"`
 }
 
 type MessageData interface {
