@@ -78,7 +78,7 @@ func PackCgResponseMessage(cgMessage CGMessage, errorCode int, data []byte) CGRe
 			Serial: cgMessage.Serial,
 			Command: cgMessage.Command,
 			ErrorCode: errorCode,
-
+			Data: []json.RawMessage{},
 		}
 	} else {
 		return CGResponseMessage{
