@@ -8,6 +8,14 @@ import (
 	"gitlab.3ag.xyz/backend/common/mq/msg"
 )
 
+type ProcessFn func(msg.CGMessage, *db.DBAdapter) msg.CGResponseMessage
+
+type ProxyData struct {
+	ReqData msg.CGMessage
+	ResChan chan msg.CGResponseMessage
+	Target string // target queue
+}
+
 func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	// RabbitMQ part
