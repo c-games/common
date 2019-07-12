@@ -2,20 +2,6 @@ package order
 
 import (
 	"encoding/json"
-	"gitlab.3ag.xyz/backend/common/mq/msg"
-	"time"
-)
-
-var (
-	QueryOrder        msg.ServiceCommand = msg.NewCommand("query_order")
-	QueryOrderByRound msg.ServiceCommand = msg.NewCommand("query_order_by_round")
-	QueryOrderByUser  msg.ServiceCommand = msg.NewCommand("query_order_by_user")
-	QueryOrderByAgent msg.ServiceCommand = msg.NewCommand("query_order_by_agent")
-	QueryOrderByMasterAgent msg.ServiceCommand = msg.NewCommand("query_order_by_master_agent")
-	UpdateOrder       msg.ServiceCommand = msg.NewCommand("update_order")
-	PlaceOrder        msg.ServiceCommand = msg.NewCommand("place_order")
-	DrawResult        msg.ServiceCommand = msg.NewCommand("open_result")
-	WithdrawResult    msg.ServiceCommand = msg.NewCommand("withdraw_result")
 )
 
 type QueryOrderData struct {
@@ -103,13 +89,14 @@ type QueryResponseData struct {
 	Round        int64     `json:"round"`
 	GameId       int       `json:"game_id"`
 	Target       string    `json:"target"`
+	Value        string       `json:"value"`
 	Odds         float64   `json:"odds"`
 	Refund       float64   `json:"refund"`
 	OrderCredit  float64   `json:"order_credit"`
-	OrderDate    time.Time `json:"order_date"`
+	OrderDate    string `json:"order_date"`
 	PayoutCredit float64   `json:"payout_credit"`
-	IsOpen       bool      `json:"is_open"`
-	OpenDate     time.Time `json:"open_date"`
+	IsOpen       int      `json:"is_open"`
+	OpenDate     string `json:"open_date"`
 }
 
 type PlaceOrderResponse struct {
@@ -133,7 +120,6 @@ type WithdrawResultData struct {
 	GameId int   `json:"game_id"`
 	Round  int64 `json:"round"`
 }
-
 
 // TODO
 type ReverseData struct {

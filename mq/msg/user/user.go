@@ -2,24 +2,6 @@ package user
 
 import (
 	"encoding/json"
-	"gitlab.3ag.xyz/backend/common/mq/msg"
-	"time"
-)
-
-var (
-	Register        msg.ServiceCommand = msg.NewCommand("register")
-	Login           msg.ServiceCommand = msg.NewCommand("login")
-	Logout          msg.ServiceCommand = msg.NewCommand("logout")
-	Token           msg.ServiceCommand = msg.NewCommand("token")
-	Validate        msg.ServiceCommand = msg.NewCommand("validate")
-	Query           msg.ServiceCommand = msg.NewCommand("query")
-	Update          msg.ServiceCommand = msg.NewCommand("update")
-	QueryUserOdds   msg.ServiceCommand = msg.NewCommand("query_user_odds")
-	QueryUserLimit  msg.ServiceCommand = msg.NewCommand("query_user_limit")
-	QueryUserRefund  msg.ServiceCommand = msg.NewCommand("query_user_refund")
-	UpdateUserOdds  msg.ServiceCommand = msg.NewCommand("update_user_odds")
-	UpdateUserLimit msg.ServiceCommand = msg.NewCommand("update_user_limit")
-	UpdateUserRefund  msg.ServiceCommand = msg.NewCommand("update_user_refund")
 )
 
 type QueryData struct {
@@ -66,22 +48,6 @@ type QueryUserData struct {
 	GameId int   `json:"game_id"`
 }
 
-// TODO deprecated update struct 用不到
-type UpdateData struct {
-	UserId   int64     `json:"user_id"`
-	// GameId   int       `json:"game_id"`
-	Account  string    `json:"account"`
-	Name     string    `json:"name"`
-	Email    string    `json:"email"`
-	Password string    `json:"password"`
-	Mobile   string    `json:"mobile"`
-	Qq       string    `json:"qq"`
-	Wechat   string    `json:"wechat"`
-	Ip       string    `json:"ip"`
-	Time     time.Time `json:"time"`
-	Platform string    `json:"platform"`
-}
-
 type UpdateUserOddsData struct {
 	UserId    int64  `json:"user_id"`
 	GameId int    `json:"game_id"`
@@ -108,6 +74,12 @@ type RegisterGameData struct {
 	Refund json.RawMessage`json:"refund"`
 }
 
+type RegisterAgentData struct {
+	Id int `json:"id"`
+	Name string `json:"name"`
+	SiteUrl string `json:"site_url"`
+}
+
 // Response data:
 type QueryUserResponse struct {
 	UserId int64  `json:"user_id"`
@@ -122,7 +94,7 @@ type QueryResponse struct {
 	Account  string    `json:"account"`
 	Name     string    `json:"name"`
 	Email    string    `json:"email"`
-	Birthday time.Time `json:"birthday"`
+	Birthday string `json:"birthday"`
 	Mobile   string    `json:"mobile"`
 	Qq       string    `json:"qq"`
 	Wechat   string    `json:"wechat"`
@@ -134,7 +106,7 @@ type LoginResponse struct {
 	UserId      int64  `json:"user_id"`
 	Account     string    `json:"account"`
 	NewToken    string    `json:"new_token"`
-	TokenExpire time.Time `json:"token_expire"`
+	TokenExpire string `json:"token_expire"`
 }
 
 type ValidateResponse struct {
