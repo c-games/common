@@ -29,10 +29,10 @@ func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Wallet.GetQueueConfig())
 	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.User.GetQueueConfig())
-	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Orders.GetQueueConfig())
+	_, _ = mqChAdp.QueueDeclareByQueueConfig(msg.Order.GetQueueConfig())
 
 	_, _ = mqChAdp.QueueDeclare(msg.User.ResponseQueueName(), true, false, false, false, nil)
-	_, _ = mqChAdp.QueueDeclare(msg.Orders.ResponseQueueName(), true, false, false, false, nil)
+	_, _ = mqChAdp.QueueDeclare(msg.Order.ResponseQueueName(), true, false, false, false, nil)
 	_, _ = mqChAdp.QueueDeclare(msg.Wallet.ResponseQueueName(), true, false, false, false, nil)
 
 	mqChAdp.QOS(1, 0, false)
