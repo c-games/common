@@ -20,13 +20,6 @@ type CGResponseMessage struct {
 	Data          []json.RawMessage `json:"data"`
 }
 
-type LoggerMessage struct {
-	Command string            `json:"id"`
-	From    string `json:"from"`
-	Node    int `json:"node"`
-	Record  []json.RawMessage `json:"record"`
-}
-
 type IServiceData interface {
 	// TODO 如果訂了這個就變成是 data type 都要 implement 了
 	// ToJson() string
@@ -34,11 +27,13 @@ type IServiceData interface {
 }
 
 type PrintRecord struct {
-	Serial int64
-	Who string
-	Action string
-	Result string
-	Message string
+	Serial int64 `json:"serial"`
+	Time string `json:"time"`
+	Who string `json:"who"`
+	Action string `json:"action"`
+	ErrorCode int `json:"error_code"`
+	Result string `json:"result"`
+	Message string `json:"message"`
 }
 
 type MessageData interface {
@@ -48,10 +43,6 @@ type MessageData interface {
 
 func (msg *CGMessage) FirstData() json.RawMessage {
 	return msg.Data[0]
-}
-
-func (msg *LoggerMessage) FirstRecord() json.RawMessage {
-	return msg.Record[0]
 }
 
 func ToStruct(body []byte) CGMessage {
@@ -89,7 +80,7 @@ func PackCgResponseMessage(cgMessage CGMessage, errorCode int, data []byte) CGRe
 			Serial: cgMessage.Serial,
 			Command: cgMessage.Command,
 			ErrorCode: errorCode,
-
+			Data: []json.RawMessage{},
 		}
 	} else {
 		return CGResponseMessage{

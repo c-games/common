@@ -59,7 +59,7 @@ var (
 		},
 	}
 
-	Orders Service = Service{
+	Order Service = Service{
 		name: "order",
 		queueConfig: &QueueConfig{
 			name: "cg-order",

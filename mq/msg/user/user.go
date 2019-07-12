@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/json"
 	"gitlab.3ag.xyz/backend/common/mq/msg"
 	"time"
 )
@@ -12,11 +13,13 @@ var (
 	Token           msg.ServiceCommand = msg.NewCommand("token")
 	Validate        msg.ServiceCommand = msg.NewCommand("validate")
 	Query           msg.ServiceCommand = msg.NewCommand("query")
+	Update          msg.ServiceCommand = msg.NewCommand("update")
 	QueryUserOdds   msg.ServiceCommand = msg.NewCommand("query_user_odds")
 	QueryUserLimit  msg.ServiceCommand = msg.NewCommand("query_user_limit")
-	Update          msg.ServiceCommand = msg.NewCommand("update")
+	QueryUserRefund  msg.ServiceCommand = msg.NewCommand("query_user_refund")
 	UpdateUserOdds  msg.ServiceCommand = msg.NewCommand("update_user_odds")
 	UpdateUserLimit msg.ServiceCommand = msg.NewCommand("update_user_limit")
+	UpdateUserRefund  msg.ServiceCommand = msg.NewCommand("update_user_refund")
 )
 
 type QueryData struct {
@@ -91,13 +94,27 @@ type UpdateUserLimitData struct {
 	Limit  string `json:"limit"`
 }
 
-// Response data:
+type UpdateUserRefundData struct {
+	UserId int64  `json:"user_id"`
+	GameId int    `json:"game_id"`
+	Refund  string `json:"refund"`
+}
 
+type RegisterGameData struct {
+	GameId int `json:"game_id"`
+	Name int `json:"name"`
+	Odds json.RawMessage `json:"odds"`
+	Limit json.RawMessage `json:"json"`
+	Refund json.RawMessage`json:"refund"`
+}
+
+// Response data:
 type QueryUserResponse struct {
 	UserId int64  `json:"user_id"`
 	GameId int    `json:"game_id"`
 	Odds   string `json:"odds"`
 }
+
 type QueryResponse struct {
 	UserId   int64     `json:"user_id"`
 	AgentId  int       `json:"agent_id"`
@@ -114,6 +131,7 @@ type QueryResponse struct {
 type LoginResponse struct {
 	MasterAgentId int `json:"master_agent_id"`
 	AgentId     int       `json:"agent_id"`
+	UserId      int64  `json:"user_id"`
 	Account     string    `json:"account"`
 	NewToken    string    `json:"new_token"`
 	TokenExpire time.Time `json:"token_expire"`
@@ -129,31 +147,9 @@ type QueryUserLimitResponse struct {
 	Limit  string `json:"limit"`
 }
 
-func UserCommand(commandString string) msg.ServiceCommand {
-	switch commandString {
-	case "register":
-		return Register
-	case "login":
-		return Login
-	case "logout":
-		return Logout
-	case "token":
-		return Token
-	case "validate":
-		return Validate
-	case "query":
-		return Query
-	case "query_user_odds":
-		return QueryUserOdds
-	case "query_user_limit":
-		return QueryUserLimit
-	case "update":
-		return Update
-	case "update_user_odds":
-		return UpdateUserOdds
-	case "update_user_limit":
-		return UpdateUserLimit
-	default:
-		return msg.NullCommand
-	}
+type QueryUserRefundResponse struct {
+	UserId int64  `json:"user_id"`
+	GameId int    `json:"game_id"`
+	Refund  string `json:"refund"`
 }
+

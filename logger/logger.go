@@ -70,9 +70,9 @@ func prepareLogMessage(command string, data interface{}) []byte {
 	record, err := json.Marshal(data)
 	fail.FailOnError(err, "marshal failed")
 
-	logmsg, err := json.Marshal(msg.LoggerMessage{
+	logmsg, err := json.Marshal(msg.CGMessage{
 		Command: command,
-		Record: []json.RawMessage{record},
+		Data: []json.RawMessage{record},
 	})
 
 	fail.FailOnError(err, "marshal failed")
@@ -85,10 +85,9 @@ func preparePrintMessage() []byte {
 
 func assertLoggerAvailable() {
 	if logger == nil {
-		fail.FailOnError( errors.New("Logger channel is nil"), "Failed to send log")
+		fail.FailOnError( errors.New("Logger channel is nil "), "Failed to send log")
 	}
 }
-
 
 func Logf(format string, args...interface{}) {
 	msg := fmt.Sprintf(format, args...)
