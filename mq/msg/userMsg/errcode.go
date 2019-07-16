@@ -14,4 +14,5 @@ const (
 	Code_AccountAllreadyExist int = 9
 	Code_ZeroDataUpdate       int = 10
 	Code_DbFailed             int = 11
+	Code_NotExistCommand      int = 12
 )

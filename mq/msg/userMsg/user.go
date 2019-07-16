@@ -76,8 +76,11 @@ type RegisterGameData struct {
 
 type RegisterAgentData struct {
 	Id int `json:"agent_id"`
+	Account string `json:"account"`
+	Password string `json:"password"`
 	Name string `json:"name"`
 	SiteUrl string `json:"site_url"`
+	MasterAgentId int `json:"master_agent_id"`
 }
 
 // Response data:
