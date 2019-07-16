@@ -81,10 +81,15 @@ func GetFakeChannel() *FakeChannel {
 
 func (fake *FakeChannel) Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error {
 	targetQueue := "unknow"
-	if key == "" {
+	if key == "" && exchange == "" {
 		targetQueue = exchange
+	} else if exchange == "" {
+		targetQueue = key
 	} else {
 		exg := fake.exchange[exchange]
+		if exg == nil {
+			panic("not exist exchange " + exchange)
+		}
 		for qName, chkFn := range exg.channelMatchCheck {
 			if chkFn(key) {
 				targetQueue = qName
