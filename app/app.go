@@ -49,3 +49,11 @@ func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	return mqAdp, mqChAdp, forever
 }
+
+func CheckEnvSetting(keys []string) {
+	for _, key := range keys {
+		if !viper.IsSet(key) {
+			panic("unset environment = " + key)
+		}
+	}
+}
