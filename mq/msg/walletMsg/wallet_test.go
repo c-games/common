@@ -1,4 +1,4 @@
-package wallet
+package walletMsg
 
 import (
 	"gitlab.3ag.xyz/backend/common/mq/msg"

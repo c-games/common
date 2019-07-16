@@ -1,4 +1,4 @@
-package wallet
+package walletMsg
 
 const (
 	Code_Success         int = 0

@@ -1,4 +1,4 @@
-package user
+package userMsg
 
 import (
 	"encoding/json"
@@ -75,7 +75,7 @@ type RegisterGameData struct {
 }
 
 type RegisterAgentData struct {
-	Id int `json:"id"`
+	Id int `json:"agent_id"`
 	Name string `json:"name"`
 	SiteUrl string `json:"site_url"`
 }

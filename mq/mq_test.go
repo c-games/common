@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/streadway/amqp"
 	"gitlab.3ag.xyz/backend/common/mq/msg"
-	"gitlab.3ag.xyz/backend/common/mq/msg/user"
+	"gitlab.3ag.xyz/backend/common/mq/msg/userMsg"
 	"gitlab.3ag.xyz/backend/common/testutil"
 	"os"
 	"testing"

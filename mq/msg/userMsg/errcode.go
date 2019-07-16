@@ -1,4 +1,4 @@
-package user
+package userMsg
 
 // User Error Code Defined
 const (

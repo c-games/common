@@ -1,4 +1,4 @@
-package user
+package userMsg
 
 import (
 	"gitlab.3ag.xyz/backend/common/mq/msg"

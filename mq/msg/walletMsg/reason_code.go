@@ -1,4 +1,4 @@
-package wallet
+package walletMsg
 
 const (
 	Reason_Other       int = 0

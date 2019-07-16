@@ -1,4 +1,4 @@
-package wallet
+package walletMsg
 
 type UpdateData struct {
 	MasterAgentId int     `json:"master_agent_id"`
