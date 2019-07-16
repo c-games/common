@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
@@ -29,13 +30,20 @@ func Is(result, expect interface{}, t *testing.T) {
 	}
 }
 
-
-
-func GenFakeDb(setMockFn func(sqlmock.Sqlmock)) *db.DBAdapter {
-	fakeDb, mock, _ := sqlmock.New()
+func _wrapFakeDb(fakeDb *sql.DB, mock sqlmock.Sqlmock, setMockFn func(sqlmock.Sqlmock)) *db.DBAdapter {
 	fakeDbAdp := db.ConnectByDB(fakeDb)
 	setMockFn(mock)
 	return fakeDbAdp
+}
+
+func GenFakeDb(setMockFn func(sqlmock.Sqlmock)) *db.DBAdapter { //
+	fakeDb, mock, _ := sqlmock.New()
+	return _wrapFakeDb(fakeDb, mock, setMockFn)
+}
+
+func GenFakeDb_QueryMatcherEqual(setMockFn func(sqlmock.Sqlmock)) *db.DBAdapter {
+	fakeDb, mock, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	return _wrapFakeDb(fakeDb, mock, setMockFn)
 }
 
 func PackStructToByte(anyStruct interface{}) []byte {
