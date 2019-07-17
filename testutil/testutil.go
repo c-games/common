@@ -51,3 +51,13 @@ func PackStructToByte(anyStruct interface{}) []byte {
 	fail.FailOnError(err, "marshal fail in test")
 	return []byte(rlt)
 }
+
+// ref: https://stackoverflow.com/a/31596110
+func AssertPanic(t *testing.T, f func()) {
+    defer func() {
+        if r := recover(); r == nil {
+            t.Errorf("The code did not panic")
+        }
+    }()
+    f()
+}
