@@ -2,8 +2,8 @@ package ref
 
 import "reflect"
 
-// sPrt is a pointer of struct you want to reset
-// replaceFields is fields you want to reset
+// sPrt: is a pointer of struct you want to reset
+// replaceFields: is fields you want to reset, if you want to set field to zero value, just use nil represent.
 func ResetStruct(sPtr interface{}, replaceFields map[string]interface{}) {
 
 	switch reflect.ValueOf(sPtr).Kind() {
@@ -44,7 +44,6 @@ func ResetStruct(sPtr interface{}, replaceFields map[string]interface{}) {
 }
 
 func StructKeys(s interface{}) []string {
-	//e := reflect.ValueOf(s).Elem()
 	e := reflect.ValueOf(s)
 
 	switch e.Kind() {
