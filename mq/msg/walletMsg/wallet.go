@@ -1,26 +1,28 @@
 package walletMsg
 
 type UpdateData struct {
-	MasterAgentId int     `json:"master_agent_id"`
-	AgentId       int     `json:"agent_id"`
-	UserId        int64   `json:"user_id"`
-	CreditChange  float64 `json:"credit_change"`
-	Reason        int     `json:"reason"`
-	ReasonMessage string  `json:"reason_message"`
+	MasterAgentId   int     `json:"master_agent_id"`
+	AgentId         int     `json:"agent_id"`
+	UserId          int64   `json:"user_id"`
+	CreditChange    float32 `json:"credit_change"`
+	Reason          int     `json:"reason"`
+	ReasonMessage   string  `json:"reason_message"`
+	GameId          int     `json:"game_id"`
+	OrderId         int64   `json:"order_id"`
+	TransferId      int64   `json:"transfer_id"`
+	AgentTransferId string  `json:"agent_transfer_if"`
 }
 
 type ValidateData struct {
-	MasterAgentId int     `json:"master_agent_id"`
-	AgentId       int     `json:"agent_id"`
 	UserId        int64   `json:"user_id"`
-	ExpectCredit  float64 `json:"expect_credit"`
+	ExpectCredit  float32 `json:"expect_credit"`
 }
 
 type RegisterData struct {
 	MasterAgentId int     `json:"master_agent_id"`
 	AgentId       int     `json:"agent_id"`
 	UserId        int64   `json:"user_id"`
-	DefaultCredit float64 `json:"default_credit"`
+	DefaultCredit float32 `json:"default_credit"`
 }
 
 type QueryData struct {
@@ -32,5 +34,5 @@ type QueryData struct {
 // response data
 
 type ResponseData struct {
-	Credit float64 `json:"credit"`
+	Credit float32 `json:"credit"`
 }

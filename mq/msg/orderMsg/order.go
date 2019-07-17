@@ -36,7 +36,7 @@ type PlaceOrderData struct {
 	Value         int     `json:"value"`
 	Odds          float32 `json:"odds"`
 	Refund        float32 `json:"refund"`
-	OrderCredit   float64 `json:"order_credit"`
+	OrderCredit   float32 `json:"order_credit"`
 }
 
 
@@ -51,7 +51,7 @@ type DrawResultData struct {
 	Round   int64   `json:"round"`
 	OrderId int64   `json:"order_id"`
 	WinLose int     `json:"win_lose"`
-	Payout  float64 `json:"payout"`
+	Payout  float32 `json:"payout"`
 }
 
 
@@ -63,7 +63,7 @@ type FetchData struct {
 
 type UpdateData struct {
 	Id           int64   `json:"order_id"`
-	ChangeCredit float64 `json:"change_credit"`
+	ChangeCredit float32 `json:"change_credit"`
 	Target       string  `json:"target"`
 }
 
@@ -74,7 +74,7 @@ type FetchResponseData struct {
 	UserId    string          `json:"user_id"`
 	GameId    string          `json:"game_id"`
 	Content   json.RawMessage `json:"content"`
-	Dollar    float64         `json:"dollar"`
+	Dollar    float32         `json:"dollar"`
 }
 
 type UpdateResponse struct {
@@ -90,11 +90,11 @@ type QueryResponseData struct {
 	GameId       int       `json:"game_id"`
 	Target       string    `json:"target"`
 	Value        string       `json:"value"`
-	Odds         float64   `json:"odds"`
-	Refund       float64   `json:"refund"`
-	OrderCredit  float64   `json:"order_credit"`
+	Odds         float32   `json:"odds"`
+	Refund       float32   `json:"refund"`
+	OrderCredit  float32   `json:"order_credit"`
 	OrderDate    string `json:"order_date"`
-	PayoutCredit float64   `json:"payout_credit"`
+	PayoutCredit float32   `json:"payout_credit"`
 	IsOpen       int      `json:"is_open"`
 	OpenDate     string `json:"open_date"`
 }
