@@ -9,5 +9,7 @@ const (
 	Code_AlreadyRegister int = 5
 	Code_LostRequiredFields int = 6
 	Code_DbFailed int = 7
+
+	Code_NotExistCommand      int = 12
 )
 
