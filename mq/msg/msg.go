@@ -111,6 +111,6 @@ func SerializeCgResponseMessage(cgMessage CGMessage, errorCode int, data []byte)
 	return result
 }
 
-func CodeUnexpectCommand() int {
+func Code_UnexpectCommand() int {
 	return -1
 }
