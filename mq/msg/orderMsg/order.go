@@ -6,6 +6,7 @@ import (
 
 type QueryOrderData struct {
 	OrderId int64 `json:"order_id"`
+	GameId int `json:"game_id"`
 }
 
 type QueryOrderByRoundData struct {
@@ -15,6 +16,7 @@ type QueryOrderByRoundData struct {
 
 type QueryOrderByUserData struct {
 	UserId int64 `json:"user_id"`
+	GameId int `json:"game_id"`
 	BeginDate string `json:"begin_date"`
 	EndDate string `json:"end_date"`
 }
@@ -24,6 +26,7 @@ type QueryOrderByAgentData struct {
 	AgentId int `json:"agent_id"`
 	BeginDate string `json:"begin_date"`
 	EndDate string `json:"end_date"`
+	GameId int `json:"game_id"`
 }
 
 type PlaceOrderData struct {
