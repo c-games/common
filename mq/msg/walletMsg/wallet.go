@@ -10,7 +10,7 @@ type UpdateData struct {
 	GameId          int     `json:"game_id"`
 	OrderId         int64   `json:"order_id"`
 	TransferId      int64   `json:"transfer_id"`
-	AgentTransferId string  `json:"agent_transfer_if"`
+	AgentTransferId string  `json:"agent_transfer_id"`
 }
 
 type ValidateData struct {
