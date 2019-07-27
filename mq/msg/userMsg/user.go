@@ -68,9 +68,9 @@ type UpdateUserRefundData struct {
 
 type RegisterGameData struct {
 	GameId int `json:"game_id"`
-	Name int `json:"name"`
+	Name string `json:"name"`
 	Odds json.RawMessage `json:"odds"`
-	Limit json.RawMessage `json:"json"`
+	Limit json.RawMessage `json:"limit"`
 	Refund json.RawMessage`json:"refund"`
 }
 
