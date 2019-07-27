@@ -14,10 +14,11 @@ type CGMessage struct {
 }
 
 type CGResponseMessage struct {
-	Serial        int64               `json:"serial"`
-	Command       string            `json:"command"`
-	ErrorCode     int               `json:"error_code"`
-	Data          []json.RawMessage `json:"data"`
+	Serial       int64             `json:"serial"`
+	Command      string            `json:"command"`
+	ErrorCode    int               `json:"error_code"`
+	ErrorMessage string            `json:"error_message"`
+	Data         []json.RawMessage `json:"data"`
 }
 
 type IServiceData interface {
