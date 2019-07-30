@@ -3,7 +3,10 @@ package db
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"gitlab.3ag.xyz/backend/common/coll"
 	"gitlab.3ag.xyz/backend/common/fail"
+	"gitlab.3ag.xyz/backend/common/str"
+	"reflect"
 )
 
 type DBAdapter struct {
@@ -96,4 +99,98 @@ func IfNoRowOr(err error, fn func(), noRowFn func()) {
 	} else {
 		fn()
 	}
+}
+
+func GenDropTable(s interface{}) string {
+	rfs := reflect.TypeOf(s)
+	if rfs.Name() == "" {
+		return "DROP TABLE " + "cg_;"
+	} else {
+		return "DROP TABLE " + "cg_" + str.Pascal2Snake(rfs.Name()) + ";"
+	}
+
+}
+
+func GenCreateTable(s interface{}) string {
+
+	rfs := reflect.TypeOf(s)
+	var sqlString string
+	if rfs.Name() == "" {
+		sqlString = "CREATE TABLE " + "cg_"
+	} else {
+
+		sqlString = "CREATE TABLE " + "cg_" + str.Pascal2Snake(rfs.Name()) + " "
+	}
+
+
+	fields := ""
+	var pk []string
+	//var idx map[string][]string
+	for idx := 0 ; idx < rfs.NumField() ; idx++ {
+		f := rfs.Field(idx)
+		name := str.Pascal2Snake(f.Name)
+
+		fields = fields + name + " " + f.Tag.Get("sql") + ",\n"
+
+		_, ok := f.Tag.Lookup("pk")
+		if ok {
+			pk = append(pk, name)
+		}
+
+	}
+
+	if len(fields) > 0 && len(pk) == 0{
+		fields = fields[:len(fields) - 2]
+		//fields = fields + "\n"
+	}
+
+	pkStr := ""
+	if len(pk) != 0 {
+		pkStr = "PRIMARY KEY " + "(" + coll.JoinString(pk, ",") + ")"
+	}
+
+
+	sqlString = sqlString + "(\n" + fields + pkStr + ") ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+	return sqlString
+}
+
+func GenCreateIndex(s interface{}) string {
+
+	rfs := reflect.TypeOf(s)
+	sqlString := ""
+	if rfs.Name() == "" {
+		return ""
+	}
+
+	tableName := "cg_" + str.Pascal2Snake(rfs.Name())
+
+	index := make(map[string][]string)
+	var keys []string
+	//var idx map[string][]string
+	for idx := 0 ; idx < rfs.NumField() ; idx++ {
+		f := rfs.Field(idx)
+		indexName, ok := f.Tag.Lookup("index")
+		if ok {
+			_, ok := index[indexName]
+			if !ok {
+				keys = append(keys, indexName)
+				index[indexName] = []string{str.Pascal2Snake(f.Name)}
+			} else {
+				index[indexName] = append(index[indexName], str.Pascal2Snake(f.Name))
+			}
+
+		}
+
+	}
+
+	// NOTE golang 的 map 不保證順序，所以要自己處理 keys
+	for _, indexName := range keys {
+		indexSet := index[indexName]
+		idxs := coll.JoinString(indexSet, ",")
+		sqlString = sqlString + "CREATE INDEX " + indexName + " ON " + tableName + " (" + idxs + ");\n"
+	}
+
+
+	return sqlString
 }

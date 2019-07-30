@@ -31,3 +31,16 @@ func JoinMapInt(m map[string]int, delimiter string) string {
 	}
 	return rlt
 }
+
+func JoinString(v []string, delimiter string) string {
+	if len(v) == 0 {
+		return ""
+	}
+
+	rlt := ""
+	for _, v := range v {
+		rlt = rlt + v + delimiter
+	}
+	rlt = rlt[:len(rlt) - 1]
+	return rlt
+}
