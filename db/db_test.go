@@ -142,7 +142,7 @@ func TestGenCreateTable(t *testing.T) {
 					return TestStruct{}
 				}(),
 			},
-						want: `CREATE TABLE cg_test_struct (
+			want: `CREATE TABLE cg_test_struct (
 ) ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`,
 		},
 		{
@@ -199,7 +199,6 @@ func TestGenIndexTable(t *testing.T) {
 			args: args{
 				struct{
 				}{},
-
 			},
 			want: ``,
 		},

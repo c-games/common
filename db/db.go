@@ -104,28 +104,25 @@ func IfNoRowOr(err error, fn func(), noRowFn func()) {
 func GenDropTable(s interface{}) string {
 	rfs := reflect.TypeOf(s)
 	if rfs.Name() == "" {
-		return "DROP TABLE " + "cg_;"
+		return "DROP TABLE "
 	} else {
-		return "DROP TABLE " + "cg_" + str.Pascal2Snake(rfs.Name()) + ";"
+		return "DROP TABLE " + str.Pascal2Snake(rfs.Name()) + ";"
 	}
-
 }
 
 func GenCreateTable(s interface{}) string {
-
 	rfs := reflect.TypeOf(s)
 	var sqlString string
 	if rfs.Name() == "" {
-		sqlString = "CREATE TABLE " + "cg_"
+		sqlString = "CREATE TABLE "
 	} else {
 
-		sqlString = "CREATE TABLE " + "cg_" + str.Pascal2Snake(rfs.Name()) + " "
+		sqlString = "CREATE TABLE " + str.Pascal2Snake(rfs.Name()) + " "
 	}
 
 
 	fields := ""
 	var pk []string
-	//var idx map[string][]string
 	for idx := 0 ; idx < rfs.NumField() ; idx++ {
 		f := rfs.Field(idx)
 		name := str.Pascal2Snake(f.Name)
@@ -141,7 +138,6 @@ func GenCreateTable(s interface{}) string {
 
 	if len(fields) > 0 && len(pk) == 0{
 		fields = fields[:len(fields) - 2]
-		//fields = fields + "\n"
 	}
 
 	pkStr := ""
@@ -163,7 +159,7 @@ func GenCreateIndex(s interface{}) string {
 		return ""
 	}
 
-	tableName := "cg_" + str.Pascal2Snake(rfs.Name())
+	tableName := str.Pascal2Snake(rfs.Name())
 
 	index := make(map[string][]string)
 	var keys []string
@@ -188,9 +184,8 @@ func GenCreateIndex(s interface{}) string {
 	for _, indexName := range keys {
 		indexSet := index[indexName]
 		idxs := coll.JoinString(indexSet, ",")
-		sqlString = sqlString + "CREATE INDEX " + indexName + " ON " + tableName + " (" + idxs + ");\n"
+		sqlString = sqlString + "CREATE INDEX " + indexName + " ON " + tableName + " (" + idxs + ");"
 	}
-
 
 	return sqlString
 }
