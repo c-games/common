@@ -9,7 +9,6 @@ type QueryData struct {
 }
 
 type LoginData struct {
-	MasterAgentId int `json:"master_agent_id"`
 	AgentId  int    `json:"agent_id"`
 	Account  string `json:"account"`
 	Password string `json:"password"`
@@ -18,7 +17,6 @@ type LoginData struct {
 }
 
 type RegisterData struct {
-	MasterAgentId int    `json:"master_agent_id"`
 	AgentId       int    `json:"agent_id"`
 	Account       string `json:"account"`
 	Name          string `json:"name"`
@@ -83,11 +81,21 @@ type RegisterAgentData struct {
 	MasterAgentId int `json:"master_agent_id"`
 }
 
+type QueryByAgent struct {
+	AgentId int `json:"agent_id"`
+	Token string `json:"token"`
+	IsMaster bool `json:"is_master"`
+}
+
+type QueryAgentData struct {
+	Id int `json:"agent_id"`
+}
+
 // Response data:
 type QueryUserResponse struct {
 	UserId int64  `json:"user_id"`
 	GameId int    `json:"game_id"`
-	Odds   string `json:"odds"`
+	Odds   json.RawMessage `json:"odds"`
 }
 
 type QueryResponse struct {
@@ -104,27 +112,32 @@ type QueryResponse struct {
 }
 
 type LoginResponse struct {
-	MasterAgentId int `json:"master_agent_id"`
-	AgentId     int       `json:"agent_id"`
-	UserId      int64  `json:"user_id"`
-	Account     string    `json:"account"`
 	NewToken    string    `json:"new_token"`
 	TokenExpire string `json:"token_expire"`
 }
 
 type ValidateResponse struct {
 	Id int64 `json:"user_id"`
+	MasterAgentId int `json:"master_agent_id"`
+	AgentId int `json:"agent_id"`
+	Account string `json:"account"`
 }
 
 type QueryUserLimitResponse struct {
 	UserId int64  `json:"user_id"`
 	GameId int    `json:"game_id"`
-	Limit  string `json:"limit"`
+	Limit  json.RawMessage `json:"limit"`
 }
 
 type QueryUserRefundResponse struct {
 	UserId int64  `json:"user_id"`
 	GameId int    `json:"game_id"`
-	Refund  string `json:"refund"`
+	Refund  json.RawMessage `json:"refund"`
 }
 
+type QueryAgentResponse struct {
+	Id            int    `json:"agent_id"`
+	Account       string `json:"account"`
+	Name          string `json:"name"`
+	MasterAgentId int    `json:"master_agent_id"`
+}
