@@ -8,6 +8,7 @@ import (
 	"gitlab.3ag.xyz/backend/common/fail"
 	"gitlab.3ag.xyz/backend/common/mq"
 	"gitlab.3ag.xyz/backend/common/mq/msg"
+	time2 "gitlab.3ag.xyz/backend/common/time"
 	"time"
 )
 
@@ -16,7 +17,6 @@ type LogStruct struct {
 	Command string
 	Data interface{}
 }
-
 
 type loggerStruct struct {
 	channel chan LogStruct
@@ -43,12 +43,8 @@ func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
 				switch log.Type {
 				case "log":
 					body = prepareLogMessage(log.Command, log.Data)
-				case "print":
-					body = prepareLogMessage("print", log.Data)
-				default:
-					fail.FailOnError(errors.New("unknown log command"), "")
-				}
-				err := logger.mqChannel.Publish(
+
+					err := logger.mqChannel.Publish(
 					"",
 					msg.Logger.QueueName(),
 					false,
@@ -58,8 +54,16 @@ func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
 						Body:        body,
 						Timestamp:   time.Now(),
 					})
+					fail.FailOnError(err, "[logger-gorutine] publish faled")
+					logdata, _ := json.Marshal(log.Data)
 
-				fail.FailOnError(err, "[logger-gorutine] publish faled")
+					fmt.Printf("[%s] %s\n", time2.Now(), string(logdata))
+				// TODO 分更多的類型
+				case "print":
+					fmt.Printf("[%s] %s\n", time2.Now(), log.Data)
+				default:
+					fail.FailOnError(errors.New("unknown log command"), "")
+				}
 			}
 		}()
 	}
@@ -79,10 +83,6 @@ func prepareLogMessage(command string, data interface{}) []byte {
 	return logmsg
 }
 
-func preparePrintMessage() []byte {
-	return nil
-}
-
 func assertLoggerAvailable() {
 	if logger == nil {
 		fail.FailOnError( errors.New("Logger channel is nil "), "Failed to send log")
@@ -97,25 +97,24 @@ func Logf(format string, args...interface{}) {
 func Log(message string) {
 	assertLoggerAvailable()
 	logger.channel <- LogStruct{
-		Type: "log",
-		Command: "unknown",
+		Type: "print",
 		Data: message,
 	}
 }
-func Print(serial int64, who, action, result, message string ) {
-	assertLoggerAvailable()
 
+// TODO remove who
+func PrintRemote(serial int64, who, action, result, message string ) {
+	assertLoggerAvailable()
 	log := LogStruct{
-		Type: "print",
+		Type: "log",
 		Command: "print",
 		Data: msg.PrintRecord{
 			Serial: serial,
-			Who: who,
+			Who: serviceName,
 			Action: action,
 			Result: result,
 			Message: message,
 		},
 	}
-
 	logger.channel <- log
 }
