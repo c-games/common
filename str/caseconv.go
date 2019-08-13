@@ -22,6 +22,18 @@ func Pascal2Snake(str string) string {
 	return rlt[1:]
 }
 
+func Snake2Pascal(str string) string {
+	if IsUppercase(rune(str[0])) {
+		panic("not SnakeCase")
+	}
+
+	var rlt string
+	strArr := strings.Split(str, "_")
+	for _, s := range strArr {
+		rlt = rlt + strings.ToUpper(string(s[0])) + s[1:]
+	}
+	return rlt
+}
 
 func IsUppercase(c rune) bool {
 	return  c >= 'A' && c <= 'Z'

@@ -120,3 +120,28 @@ func TestIsNumber(t *testing.T) {
 		})
 	}
 }
+
+func TestSnake2Pascal(t *testing.T) {
+	type args struct {
+		str string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			args: args{
+				str: "test_case",
+			},
+			want: "TestCase",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Snake2Pascal(tt.args.str); got != tt.want {
+				t.Errorf("Snake2Pascal() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
