@@ -1,8 +1,8 @@
 package walletMsg
 
 type UpdateData struct {
-	MasterAgentId   int     `json:"master_agent_id"`
-	AgentId         int     `json:"agent_id"`
+//	MasterAgentId   int     `json:"master_agent_id"`
+//	AgentId         int     `json:"agent_id"`
 	UserId          int64   `json:"user_id"`
 	CreditChange    float32 `json:"credit_change"`
 	Reason          int     `json:"reason"`
@@ -26,8 +26,8 @@ type RegisterData struct {
 }
 
 type QueryData struct {
-	MasterAgentId int   `json:"master_agent_id"`
-	AgentId       int   `json:"agent_id"`
+//	MasterAgentId int   `json:"master_agent_id"`
+//	AgentId       int   `json:"agent_id"`
 	UserId        int64 `json:"user_id"`
 }
 

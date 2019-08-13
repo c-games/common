@@ -9,4 +9,5 @@ const (
 	Code_WrongGameIdOrRound int = 3
 	Code_InvalidateUser     int = 4
 	Code_DbFailed           int = 8
+	Code_ZeroData           int = 8
 )

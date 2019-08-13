@@ -15,4 +15,6 @@ const (
 	Code_ZeroDataUpdate      int = 10
 	Code_DbFailed            int = 11
 	Code_NotExistCommand     int = 12
+
+	Code_UnknownMasterAgentId      int = 13 //TODO move
 )
