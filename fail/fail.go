@@ -40,3 +40,7 @@ func FailOnError(err error, msg string) {
 			msg, err)
 	}
 }
+
+func Unmarshal(err error) {
+	FailOnError(err, "Unmarshal Failed")
+}
