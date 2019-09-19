@@ -8,7 +8,7 @@ import (
 	"gitlab.3ag.xyz/backend/common/fail"
 	"gitlab.3ag.xyz/backend/common/mq"
 	"gitlab.3ag.xyz/backend/common/mq/msg"
-	time2 "gitlab.3ag.xyz/backend/common/time"
+	time2 "gitlab.3ag.xyz/backend/common/timeutil"
 	"time"
 )
 
