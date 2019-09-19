@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
 	"gitlab.3ag.xyz/backend/common/db"
-	"gitlab.3ag.xyz/backend/common/fail"
+
 	"testing"
 )
 
@@ -48,7 +48,9 @@ func GenFakeDb_QueryMatcherEqual(setMockFn func(sqlmock.Sqlmock)) *db.DBAdapter 
 
 func PackStructToByte(anyStruct interface{}) []byte {
 	rlt, err := json.Marshal(anyStruct)
-	fail.FailOnError(err, "marshal fail in test")
+	if err != nil {
+		panic("marshal fail in test, err = " + err.Error())
+	}
 	return []byte(rlt)
 }
 
