@@ -16,6 +16,7 @@ type ProxyData struct {
 	Target string // target queue
 }
 
+// TODO fix
 func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	// RabbitMQ part

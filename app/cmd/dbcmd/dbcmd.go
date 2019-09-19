@@ -37,7 +37,6 @@ func Init(dbUrl string, action string, migrationList []*migrate.Migration) {
 		// TODO Handle errors!
 		panic(err.Error())
 	}
-	//
 
 	var n int
 	//var err error
