@@ -112,6 +112,12 @@ type QueryResponse struct {
 	Credit        float32 `json:"credit"`
 }
 
+type QueryStatusResponse struct {
+	UserId int64 `json:"user_id"`
+	Status int `json:"status"`
+	LoginStatus int `json:"login_status"`
+}
+
 type LoginResponse struct {
 	NewToken    string `json:"new_token"`
 	TokenExpire string `json:"token_expire"`
