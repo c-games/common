@@ -6,7 +6,6 @@ import (
 
 type QueryOrderData struct {
 	OrderId int64 `json:"order_id"`
-	GameId  int   `json:"game_id"`
 }
 
 type QueryOrderByRoundData struct {
@@ -14,9 +13,21 @@ type QueryOrderByRoundData struct {
 	Round  int64 `json:"round"`
 }
 
+type QueryMultipleOrder struct {
+	UserId int64 `json:"user_id"`
+	AgentId int `json:"agent_id"`
+	MasterAgentId int `json:"master_agent_id"`
+
+	GameId int `json:"game_id"`
+	Round int64 `json:"round"`
+
+	BeginDate string `json:"begin_date"`
+	EndDate string `json:"end_date"`
+	Date string `json:"date"`
+}
+
 type QueryOrderByUserData struct {
 	UserId    int64  `json:"user_id"`
-	GameId    int    `json:"game_id"`
 	BeginDate string `json:"begin_date"`
 	EndDate   string `json:"end_date"`
 }
@@ -26,7 +37,6 @@ type QueryOrderByAgentData struct {
 	AgentId       int    `json:"agent_id"`
 	BeginDate     string `json:"begin_date"`
 	EndDate       string `json:"end_date"`
-	GameId        int    `json:"game_id"`
 }
 
 type PlaceOrderData struct {
@@ -136,4 +146,13 @@ type WithdrawResultData struct {
 type ReverseData struct {
 	Account string `json:"account"`
 	Token   string `json:"token"`
+}
+
+
+func ConvertIsOpen(isDraw bool) int {
+	if isDraw {
+		return 1
+	} else {
+		return 0
+	}
 }
