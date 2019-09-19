@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"gitlab.3ag.xyz/backend/common/coll"
 	"gitlab.3ag.xyz/backend/common/fail"
@@ -106,7 +107,7 @@ func GenDropTable(s interface{}) string {
 	if rfs.Name() == "" {
 		return "DROP TABLE "
 	} else {
-		return "DROP TABLE " + str.Pascal2Snake(rfs.Name()) + ";"
+		return "DROP TABLE `" + str.Pascal2Snake(rfs.Name()) + "`;"
 	}
 }
 
@@ -117,7 +118,7 @@ func GenCreateTable(s interface{}) string {
 		sqlString = "CREATE TABLE "
 	} else {
 
-		sqlString = "CREATE TABLE " + str.Pascal2Snake(rfs.Name()) + " "
+		sqlString = "CREATE TABLE `" + str.Pascal2Snake(rfs.Name()) + "` "
 	}
 
 
@@ -125,7 +126,7 @@ func GenCreateTable(s interface{}) string {
 	var pk []string
 	for idx := 0 ; idx < rfs.NumField() ; idx++ {
 		f := rfs.Field(idx)
-		name := str.Pascal2Snake(f.Name)
+		name := "`" + str.Pascal2Snake(f.Name) + "`"
 
 		fields = fields + name + " " + f.Tag.Get("sql") + ",\n"
 
@@ -148,6 +149,7 @@ func GenCreateTable(s interface{}) string {
 
 	sqlString = sqlString + "(\n" + fields + pkStr + ") ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
+	fmt.Println(sqlString)
 	return sqlString
 }
 
@@ -169,11 +171,12 @@ func GenCreateIndex(s interface{}) string {
 		indexName, ok := f.Tag.Lookup("index")
 		if ok {
 			_, ok := index[indexName]
+			fieldName := "`" + str.Pascal2Snake(f.Name) + "`"
 			if !ok {
 				keys = append(keys, indexName)
-				index[indexName] = []string{str.Pascal2Snake(f.Name)}
+				index[indexName] = []string{fieldName}
 			} else {
-				index[indexName] = append(index[indexName], str.Pascal2Snake(f.Name))
+				index[indexName] = append(index[indexName], fieldName)
 			}
 
 		}
@@ -184,8 +187,58 @@ func GenCreateIndex(s interface{}) string {
 	for _, indexName := range keys {
 		indexSet := index[indexName]
 		idxs := coll.JoinString(indexSet, ",")
-		sqlString = sqlString + "CREATE INDEX " + indexName + " ON " + tableName + " (" + idxs + ");"
+		sqlString = sqlString + "CREATE INDEX " + indexName + " ON `" + tableName + "` (" + idxs + ");"
 	}
 
 	return sqlString
 }
+
+
+func CompareParams(params []interface{}, expectParamCount int, expectParamTypes []reflect.Kind) error {
+	totalParams := len(params)
+	if totalParams != expectParamCount {
+		panic("stmt 所需參數不同")
+	}
+	// check type
+	for idx, param := range params {
+		expectType := expectParamTypes[idx]
+		paramType := reflect.TypeOf(param)
+
+		if expectType != paramType.Kind() {
+			panic("query stmt 資料型態有錯")
+		}
+	}
+	return nil
+}
+
+// NOTE 為了要共用 sql.rows 和 sql.row 的 Scan
+// ---------------------------------------------------
+
+type SqlRowLike interface {
+	Scan(...interface{}) error
+}
+
+type Scannable interface {
+	Scan(SqlRowLike) error
+}
+
+func QueryCondition(queryResult Scannable, rowLike SqlRowLike) error {
+	err := queryResult.Scan(rowLike)
+	if err == nil {
+		return nil
+	} else if err == sql.ErrNoRows  {
+		return nil
+	} else {
+		// rows 的 Scan 有可能會因為沒有先 call Next() 而出錯，那需要自己處理，所以直接 return err
+		return err
+	}
+}
+
+func QueryCondition2(queryResultType reflect.Type, rowLike SqlRowLike) (interface{}, error) {
+	newInstent := reflect.New(queryResultType)
+	elementInstent := newInstent.Elem().Interface()
+	// TODO 要 check elementInstent 有 Scannable
+	err := QueryCondition(elementInstent.(Scannable), rowLike)
+	return elementInstent, err
+}
+

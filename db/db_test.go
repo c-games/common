@@ -1,11 +1,14 @@
 package db
 
 import (
+	"database/sql"
+	"github.com/DATA-DOG/go-sqlmock"
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
+	"gitlab.3ag.xyz/backend/common/timeutil"
 	"strings"
 	"testing"
 
-	//"github.com/DATA-DOG/go-sqlmock"
-	_ "github.com/go-sql-driver/mysql"
 	//"gitlab.3ag.xyz/backend/common/testutil"
 )
 
@@ -132,7 +135,7 @@ func TestGenCreateTable(t *testing.T) {
 				}{},
 
 			},
-			want: `CREATE TABLE cg_(
+			want: `CREATE TABLE (
 ) ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`,
 		},
 		{
@@ -142,7 +145,7 @@ func TestGenCreateTable(t *testing.T) {
 					return TestStruct{}
 				}(),
 			},
-			want: `CREATE TABLE cg_test_struct (
+			want: `CREATE TABLE test_struct (
 ) ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`,
 		},
 		{
@@ -156,9 +159,9 @@ func TestGenCreateTable(t *testing.T) {
 				}(),
 			},
 			want:
-			`CREATE TABLE cg_test_struct (
-name varchar(64),
-id bigint) ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`,
+			"CREATE TABLE test_struct (\n" +
+				"`name` varchar(64),\n" +
+				"`id` bigint) ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;",
 		},
 		{
 			args: args {
@@ -171,10 +174,10 @@ id bigint) ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`,
 				}(),
 			},
 			want:
-			`CREATE TABLE cg_test_struct (
-name varchar(64),
-id bigint,
-PRIMARY KEY (id)) ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`,
+			"CREATE TABLE test_struct (\n" +
+				"`name` varchar(64),\n" +
+				"`id` bigint,\n" +
+				"PRIMARY KEY (`id`)) ENGINE=INNODB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;",
 		},
 	}
 	for _, tt := range tests {
@@ -222,14 +225,85 @@ func TestGenIndexTable(t *testing.T) {
 					return TestStruct{}
 				}(),
 			},
-			want: `CREATE INDEX a ON cg_test_struct (id,name);
-CREATE INDEX b ON cg_test_struct (age);`,
+			want: "CREATE INDEX a ON test_struct (`id`,`name`);" +
+				"CREATE INDEX b ON test_struct (`age`);",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := GenCreateIndex(tt.args.s);  strings.TrimRight(got, "\n") !=  strings.TrimRight(tt.want, "\n") {
 				t.Errorf("GenCreateTable():\n%v\nwant:\n%v", got, tt.want)
+			}
+		})
+	}
+}
+
+
+// 測 SqlRowLike 和 Scannable 所需要的自定義資料
+type TestStruct struct {
+	A int
+	B int64
+	C float32
+	D float64
+	E string
+	F NullTime
+}
+func (s *TestStruct) Scan(rowLike SqlRowLike) error {
+	return rowLike.Scan(&s.A, &s.B, &s.C, &s.D, &s.E, &s.F)
+}
+
+func TestTypeScannable(t *testing.T) {
+	t.Run("Test Scannable", func(t *testing.T) {
+		rows := MockRowsToSqlRows(sqlmock.NewRows([]string{"A", "B", "C", "D", "E", "F"}).
+			AddRow(1, 123123, 1.0, 123.123, "test", time.Now()))
+		//rows.Next()
+
+		f := TestStruct{}
+		wantErr := false
+
+		if err := f.Scan(rows); (err != nil) != wantErr {
+			t.Errorf("Scan() error = %v, wantErr %v", err, wantErr)
+		}
+	})
+}
+
+func TestQueryCondition(t *testing.T) {
+	type args struct {
+		queryResult Scannable
+		rowLike     SqlRowLike
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "Expect Condition return nil",
+			args: args{
+				queryResult: &TestStruct{},
+				rowLike: func() *sql.Rows {
+					 mockrows := MockRowsToSqlRows(sqlmock.NewRows([]string{"A", "B", "C", "D", "E", "F"}).
+						 AddRow(1, 123123, 1.0, 123.123, "test", time.Now()))
+					 mockrows.Next()
+					 return mockrows
+				}(),
+			},
+			wantErr: false,
+		},
+		{
+			name: "Expect error if rows without called Next()",
+			args: args{
+				queryResult: &TestStruct{},
+				rowLike: MockRowsToSqlRows(sqlmock.NewRows([]string{"A", "B", "C", "D", "E", "F"}).
+						 AddRow(1, 123123, 1.0, 123.123, "test", time.Now())),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := QueryCondition(tt.args.queryResult, tt.args.rowLike); (err != nil) != tt.wantErr {
+				t.Errorf("QueryCondition() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
