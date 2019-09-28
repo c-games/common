@@ -14,9 +14,8 @@ type QueryOrderByRoundData struct {
 }
 
 type QueryMultipleOrder struct {
-	UserId int64 `json:"user_id"`
-	AgentId int `json:"agent_id"`
-	MasterAgentId int `json:"master_agent_id"`
+	Id int64 `json:"id"`
+	IdType int `json:"id_type"`
 
 	GameId int `json:"game_id"`
 	Round int64 `json:"round"`

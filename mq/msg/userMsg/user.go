@@ -12,8 +12,13 @@ type LoginData struct {
 	AgentId  int    `json:"agent_id"`
 	Account  string `json:"account"`
 	Password string `json:"password"`
+}
+
+type LoginInfoData struct {
+	UserId   int64  `json:"user_id"`
 	Ip       string `json:"ip"`
 	Platform int    `json:"platform"`
+	Browser  int    `json:"browser"`
 }
 
 type RegisterData struct {
@@ -82,9 +87,7 @@ type RegisterAgentData struct {
 }
 
 type QueryByAgent struct {
-	AgentId  int    `json:"agent_id"`
-	Token    string `json:"token"`
-	IsMaster bool   `json:"is_master"`
+	AgentId  int  `json:"agent_id"`
 }
 
 type QueryAgentData struct {
@@ -101,7 +104,7 @@ type QueryUserResponse struct {
 type QueryResponse struct {
 	UserId        int64   `json:"user_id"`
 	AgentId       int     `json:"agent_id"`
-	MasterAgentId int     `json:"master_agent_id"`
+//	MasterAgentId int     `json:"master_agent_id"`
 	Account       string  `json:"account"`
 	Name          string  `json:"name"`
 	Email         string  `json:"email"`
@@ -113,9 +116,9 @@ type QueryResponse struct {
 }
 
 type QueryStatusResponse struct {
-	UserId int64 `json:"user_id"`
-	Status int `json:"status"`
-	LoginStatus int `json:"login_status"`
+	UserId      int64 `json:"user_id"`
+	Status      int   `json:"status"`
+	LoginStatus int   `json:"login_status"`
 }
 
 type LoginResponse struct {
@@ -125,7 +128,7 @@ type LoginResponse struct {
 
 type ValidateResponse struct {
 	Id            int64  `json:"user_id"`
-	MasterAgentId int    `json:"master_agent_id"`
+//	MasterAgentId int    `json:"master_agent_id"`
 	AgentId       int    `json:"agent_id"`
 	Account       string `json:"account"`
 }
@@ -147,4 +150,9 @@ type QueryAgentResponse struct {
 	Account       string `json:"account"`
 	Name          string `json:"name"`
 	MasterAgentId int    `json:"master_agent_id"`
+}
+
+type FindUserId struct {
+	AgentId int    `json:"agent_id"`
+	Account string `json:"account"`
 }
