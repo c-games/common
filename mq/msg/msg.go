@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gitlab.3ag.xyz/backend/common/fail"
+	appErr "gitlab.3ag.xyz/backend/common/app/err"
 )
 
 type CGMessage struct {
@@ -86,7 +87,7 @@ func PackCgMessage(serial int64, data []byte) []byte {
 }
 
 func PackCgResponseError(cgMessage CGMessage, errorCode int, errMessage string) CGResponseMessage {
-	if errorCode == 0 {
+	if errorCode == appErr.Code_Success {
 		panic("wrong error code")
 	}
 	return CGResponseMessage{
@@ -175,9 +176,4 @@ func SerializeCgResponseMessage(cgMessage CGMessage, errorCode int, data []byte)
 	result, err := json.Marshal(cgRes)
 	fail.FailOnError(err, "Marshal Json failed")
 	return result
-}
-
-// TODO remove
-func Code_UnexpectCommand() int {
-	return -1
 }
