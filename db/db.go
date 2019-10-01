@@ -22,10 +22,10 @@ func Init(config string) {
 
 func ConnectBy(dbUrl string) *DBAdapter {
 	db, err := sql.Open("mysql", dbUrl)
-	fail.FailOnError(err, "Failed to connect db")
+	fail.FailedOnError(err, "Failed to connect db")
 
 	err = db.Ping() // This DOES open a connection if necessary. This makes sure the database is accessible
-	fail.FailOnError(err, "Error on opening database connection:")
+	fail.FailedOnError(err, "Error on opening database connection:")
 
 	rlt := DBAdapter{ Connect: db }
 	return &rlt
@@ -49,16 +49,16 @@ func (d *DBAdapter) Exec(query string, args ...interface{}) sql.Result {
 		result, err = d.Connect.Exec(query, args...)
 	}
 
-	fail.FailOnError(err, "Failed to query")
+	fail.FailedOnError(err, "Failed to query")
 	return result
 }
 
 // TODO query 時要改一下
 func (d *DBAdapter) PrepareQuery(query string, args ...interface{}) *sql.Rows {
 	stmt, err := d.Connect.Prepare(query)
-	fail.FailOnError(err, "Failed to prepare")
+	fail.FailedOnError(err, "Failed to prepare")
 	rows, err := stmt.Query(args...)
-	fail.FailOnError(err, "Failed to query")
+	fail.FailedOnError(err, "Failed to query")
 	return rows
 }
 
@@ -78,17 +78,17 @@ func (d *DBAdapter)QueryRow(query string, args ...interface{}) *sql.Row {
 
 func (adp *DBAdapter) PrepareExec(query string, args...interface{}) sql.Result {
 	stmt, err := adp.Connect.Prepare(query)
-	fail.FailOnError(err, "Failed to prepare")
+	fail.FailedOnError(err, "Failed to prepare")
 
 	rlt, err := stmt.Exec(args...)
 
-	fail.FailOnError(err, "Failed to exec")
+	fail.FailedOnError(err, "Failed to exec")
 	return rlt
 }
 
 func (adp *DBAdapter) Prepare(query string) *sql.Stmt {
 	stmt, err := adp.Connect.Prepare(query)
-	fail.FailOnError(err, "Failed to prepare")
+	fail.FailedOnError(err, "Failed to prepare")
 	return stmt
 }
 

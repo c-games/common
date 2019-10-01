@@ -100,7 +100,7 @@ type QueueAdapter struct {
 
 func (adp *AMQPAdapter) GetChannel() IChannelAdapter {
 	ch, err := adp.Connect.Channel()
-	fail.FailOnError(err, "get channel failed")
+	fail.FailedOnError(err, "get channel failed")
 	return &ChannelAdapter{
 		AMQPAdapter: adp,
 		Channel: ch,
@@ -110,12 +110,12 @@ func (adp *AMQPAdapter) GetChannel() IChannelAdapter {
 func (adp *AMQPAdapter) Close() {
 	//err := adp.Channel.Qos(count, size, global)
 	err := adp.Connect.Close()
-	fail.FailOnError(err, "Connect close failed")
+	fail.FailedOnError(err, "Connect close failed")
 }
 
 func (adp *ChannelAdapter) QOS(count, size int, global bool) {
 	err := adp.Channel.Qos(count, size, global)
-	fail.FailOnError(err, "QOS setup failed")
+	fail.FailedOnError(err, "QOS setup failed")
 }
 
 // -------------------------------------------
@@ -142,7 +142,7 @@ func (adp *ChannelAdapter) PublishService(targetService msg.Service, cgmsg msg.C
 
 	// appId := cgmsg.Serial
 	data, err := json.Marshal(cgmsg)
-	fail.FailOnError(err, "parse cg message error")
+	fail.FailedOnError(err, "parse cg message error")
 	err = adp.Channel.Publish(
 		targetService.QueueName(),
 		"",
@@ -182,7 +182,7 @@ func (adp *ChannelAdapter) ResponseService(targetService msg.Service, cgmsg msg.
 
 	// appId := cgmsg.Serial
 	data, err := json.Marshal(cgmsg)
-	fail.FailOnError(err, "parse cg message error")
+	fail.FailedOnError(err, "parse cg message error")
 	err = adp.Channel.Publish(
 		targetService.ResponseQueueName(),
 		"",
@@ -240,7 +240,7 @@ func (adp *ChannelAdapter) GetQueueWithArgs(name string, durable, autoDelete, ex
 		nil,   // arguments
 	)
 
-	fail.FailOnError(err, "Failed to declare a queue")
+	fail.FailedOnError(err, "Failed to declare a queue")
 
 	return &QueueAdapter{
 		name: name,
@@ -260,7 +260,7 @@ func (adp *ChannelAdapter) ExchangeDeclare(name, kind string, durable, autoDelet
 		noWait, // no-wait
 		nil,   // arguments
 	)
-	fail.FailOnError(err, "Failed to declare a exchange")
+	fail.FailedOnError(err, "Failed to declare a exchange")
 }
 
 func (adp *ChannelAdapter) QueueBind(queueName, bindKey, exchangeName string, noWait bool, args amqp.Table) {
@@ -279,7 +279,7 @@ func (adp *ChannelAdapter) Close() {
 	// TODO fix bug
 	// close channel failed: Exception (504) Reason: "channel/connection is not open"
 	_ = adp.Channel.Close()
-	//fail.FailOnError(err, "close channel failed")
+	//fail.FailedOnError(err, "close channel failed")
 }
 
 
@@ -289,7 +289,7 @@ func (adp *ChannelAdapter) Close() {
 
 func (qAdp *QueueAdapter) Consume(consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) <-chan amqp.Delivery {
 	deliver, err := qAdp.ChannelAdapter.Channel.Consume(qAdp.name, consumer, autoAck, exclusive, noLocal, noWait, args)
-	fail.FailOnError(err, fmt.Sprintf("Consume failed: queue: %s", qAdp.name))
+	fail.FailedOnError(err, fmt.Sprintf("Consume failed: queue: %s", qAdp.name))
 	return deliver
 }
 
@@ -299,7 +299,7 @@ func (qAdp *QueueAdapter) Consume(consumer string, autoAck, exclusive, noLocal, 
 
 func GenerateConnect(url string) *AMQPAdapter {
 	conn, err := amqp.Dial(url)
-	fail.FailOnError(err, "Connect to RabbitMq failed")
+	fail.FailedOnError(err, "Connect to RabbitMq failed")
 
 	return &AMQPAdapter{
 		Connect: conn,

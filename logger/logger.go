@@ -54,7 +54,7 @@ func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
 						Body:        body,
 						Timestamp:   time.Now(),
 					})
-					fail.FailOnError(err, "[logger-gorutine] publish faled")
+					fail.FailedOnError(err, "[logger-gorutine] publish faled")
 					logdata, _ := json.Marshal(log.Data)
 
 					fmt.Printf("[%s] %s\n", time2.Now(), string(logdata))
@@ -62,7 +62,7 @@ func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
 				case "print":
 					fmt.Printf("[%s] %s\n", time2.Now(), log.Data)
 				default:
-					fail.FailOnError(errors.New("unknown log command"), "")
+					fail.FailedOnError(errors.New("unknown log command"), "")
 				}
 			}
 		}()
@@ -72,20 +72,20 @@ func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
 func prepareLogMessage(command string, data interface{}) []byte {
 
 	record, err := json.Marshal(data)
-	fail.FailOnError(err, "marshal failed")
+	fail.FailedOnError(err, "marshal failed")
 
 	logmsg, err := json.Marshal(msg.CGMessage{
 		Command: command,
 		Data: []json.RawMessage{record},
 	})
 
-	fail.FailOnError(err, "marshal failed")
+	fail.FailedOnError(err, "marshal failed")
 	return logmsg
 }
 
 func assertLoggerAvailable() {
 	if logger == nil {
-		fail.FailOnError( errors.New("Logger channel is nil "), "Failed to send log")
+		fail.FailedOnError( errors.New("Logger channel is nil "), "Failed to send log")
 	}
 }
 

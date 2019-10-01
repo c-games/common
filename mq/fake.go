@@ -147,7 +147,7 @@ func (fake *FakeChannel) QueueBind(name, key, exchange string, noWait bool, args
 		} else if exg.exchangeType == "headers" {
 			// TODO
 		} else {
-			fail.FailOnError(amqp.Error{
+			fail.FailedOnError(amqp.Error{
 				Reason: fmt.Sprintf("type %s unexpect", exg.exchangeType),
 				Code: 999,
 			},

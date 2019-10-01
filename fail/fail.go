@@ -29,18 +29,28 @@ func getFrame(skipFrames int) runtime.Frame {
     return frame
 }
 
-func FailOnError(err error, msg string) {
+func FailedOnError(err error, msg string) {
+	if err != nil {
+		frame := getFrame(2)
+		fn := frame.Function
+		file := frame.File
+		line := frame.Line
+		log.Panicf("[file:%s, %v, fn: %s]  %s: %s",
+			file, line, fn, msg, err)
+	}
+}
+
+func FatalOnError(err error, msg string) {
 	if err != nil {
 		frame := getFrame(2)
 		fn := frame.Function
 		file := frame.File
 		line := frame.Line
 		log.Fatalf("[file:%s, %v, fn: %s]  %s: %s",
-			file, line, fn,
-			msg, err)
+			file, line, fn, msg, err)
 	}
 }
 
 func Unmarshal(err error) {
-	FailOnError(err, "Unmarshal Failed")
+	FailedOnError(err, "Unmarshal Failed")
 }

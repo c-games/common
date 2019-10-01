@@ -61,7 +61,7 @@ func (msg *CGMessage) FirstData() json.RawMessage {
 func ToStruct(body []byte) CGMessage {
 	var cgMsg CGMessage
 	err := json.Unmarshal(body, &cgMsg)
-	fail.FailOnError(err, "unmarshal json failed")
+	fail.FailedOnError(err, "unmarshal json failed")
 	return cgMsg
 }
 
@@ -71,7 +71,7 @@ func ToJson(d interface{}) string {
 
 func ToByteArray(d interface{}) []byte {
 	json, err := json.Marshal(d)
-	fail.FailOnError(err, "parse json failed")
+	fail.FailedOnError(err, "parse json failed")
 	return json
 }
 
@@ -82,7 +82,7 @@ func PackCgMessage(serial int64, data []byte) []byte {
 	}
 
 	result, err := json.Marshal(cgMessage)
-	fail.FailOnError(err, "Marshal Json failed")
+	fail.FailedOnError(err, "Marshal Json failed")
 	return result
 }
 
@@ -109,7 +109,7 @@ func PackCgResponseMessage2(cgMessage CGMessage, errorCode int, data interface{}
 		resData = []json.RawMessage{}
 	} else {
 		jsonRes, err := json.Marshal(data)
-		fail.FailOnError(err, "marshal failed")
+		fail.FailedOnError(err, "marshal failed")
 		resData = []json.RawMessage{jsonRes}
 	}
 	return CGResponseMessage{
@@ -128,7 +128,7 @@ func PackCgResponseMessageMany2(cgMessage CGMessage, errorCode int, data []inter
 	} else {
 		for _, datum := range data {
 			jsonDatum, err := json.Marshal(datum)
-			fail.FailOnError(err, "marshal failed")
+			fail.FailedOnError(err, "marshal failed")
 			encodeData = append(encodeData, jsonDatum)
 		}
 	}
@@ -174,6 +174,6 @@ func PackCgResponseMessageMany(cgMessage CGMessage, errorCode int, data []json.R
 func SerializeCgResponseMessage(cgMessage CGMessage, errorCode int, data []byte) []byte {
 	cgRes := PackCgResponseMessage(cgMessage, errorCode, data)
 	result, err := json.Marshal(cgRes)
-	fail.FailOnError(err, "Marshal Json failed")
+	fail.FailedOnError(err, "Marshal Json failed")
 	return result
 }
