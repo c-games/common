@@ -87,7 +87,7 @@ type RegisterAgentData struct {
 }
 
 type QueryByAgent struct {
-	AgentId  int  `json:"agent_id"`
+	AgentId int `json:"agent_id"`
 }
 
 type QueryAgentData struct {
@@ -104,7 +104,7 @@ type QueryUserResponse struct {
 type QueryResponse struct {
 	UserId        int64   `json:"user_id"`
 	AgentId       int     `json:"agent_id"`
-//	MasterAgentId int     `json:"master_agent_id"`
+	MasterAgentId int     `json:"master_agent_id"`
 	Account       string  `json:"account"`
 	Name          string  `json:"name"`
 	Email         string  `json:"email"`
@@ -127,10 +127,10 @@ type LoginResponse struct {
 }
 
 type ValidateResponse struct {
-	Id            int64  `json:"user_id"`
-//	MasterAgentId int    `json:"master_agent_id"`
-	AgentId       int    `json:"agent_id"`
-	Account       string `json:"account"`
+	Id int64 `json:"user_id"`
+	//	MasterAgentId int    `json:"master_agent_id"`
+	AgentId int    `json:"agent_id"`
+	Account string `json:"account"`
 }
 
 type QueryUserLimitResponse struct {
@@ -150,6 +150,7 @@ type QueryAgentResponse struct {
 	Account       string `json:"account"`
 	Name          string `json:"name"`
 	MasterAgentId int    `json:"master_agent_id"`
+	Role          int    `json:"role"`
 }
 
 type FindUserId struct {
