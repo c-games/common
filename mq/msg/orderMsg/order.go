@@ -14,15 +14,15 @@ type QueryOrderByRoundData struct {
 }
 
 type QueryMultipleOrder struct {
-	Id int64 `json:"id"`
-	IdType int `json:"id_type"`
+	Id     int64 `json:"id"`
+	IdType int   `json:"id_type"`
 
-	GameId int `json:"game_id"`
-	Round int64 `json:"round"`
+	GameId int   `json:"game_id"`
+	Round  int64 `json:"round"`
 
 	BeginDate string `json:"begin_date"`
-	EndDate string `json:"end_date"`
-	Date string `json:"date"`
+	EndDate   string `json:"end_date"`
+	Date      string `json:"date"`
 }
 
 type QueryOrderByUserData struct {
@@ -39,14 +39,14 @@ type QueryOrderByAgentData struct {
 }
 
 type PlaceOrderData struct {
-	UserId        int64   `json:"user_id"`
-	GameId        int     `json:"game_id"`
-	Round         int64   `json:"round"`
-	Target        string  `json:"target"`
-	Value         string  `json:"value"`
-	Odds          float32 `json:"odds"`
-	Refund        float32 `json:"refund"`
-	OrderCredit   float32 `json:"order_credit"`
+	UserId      int64   `json:"user_id"`
+	GameId      int     `json:"game_id"`
+	Round       int64   `json:"round"`
+	Target      string  `json:"target"`
+	Value       string  `json:"value"`
+	Odds        float32 `json:"odds"`
+	Refund      float32 `json:"refund"`
+	OrderCredit float32 `json:"order_credit"`
 }
 
 type WithdrawData struct {
@@ -94,6 +94,7 @@ type QueryResponseData struct {
 	UserId       int64   `json:"user_id"`
 	AgentId      int     `json:"agent_id"`
 	OrderId      int64   `json:"order_id"`
+	Account      string  `json:"account"`
 	Round        int64   `json:"round"`
 	GameId       int     `json:"game_id"`
 	Target       string  `json:"target"`
@@ -108,15 +109,15 @@ type QueryResponseData struct {
 }
 
 type QueryOrderByAgentAndGameData struct {
-	AgentId int `json:"agent_id"`
-	GameId int `json:"game_id"`
-	Round int64 `json:"round"`
+	AgentId int   `json:"agent_id"`
+	GameId  int   `json:"game_id"`
+	Round   int64 `json:"round"`
 }
 
 type QueryOrderByUserAndGameData struct {
-	UserId int `json:"user_id"`
-	GameId int `json:"game_id"`
-	Round int64 `json:"round"`
+	UserId int   `json:"user_id"`
+	GameId int   `json:"game_id"`
+	Round  int64 `json:"round"`
 }
 
 type PlaceOrderResponse struct {
@@ -146,7 +147,6 @@ type ReverseData struct {
 	Account string `json:"account"`
 	Token   string `json:"token"`
 }
-
 
 func ConvertIsOpen(isDraw bool) int {
 	if isDraw {

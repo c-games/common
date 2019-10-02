@@ -3,8 +3,8 @@ package msg
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.3ag.xyz/backend/common/fail"
 	appErr "gitlab.3ag.xyz/backend/common/app/err"
+	"gitlab.3ag.xyz/backend/common/fail"
 )
 
 type CGMessage struct {
@@ -40,13 +40,11 @@ type IServiceData interface {
 }
 
 type PrintRecord struct {
-	Serial    int64  `json:"serial"`
-	Time      string `json:"time"`
-	Who       string `json:"who"`
-	Action    string `json:"action"`
-	ErrorCode int    `json:"error_code"`
-	Result    string `json:"result"`
-	Message   string `json:"message"`
+	Serial  int64  `json:"serial"`
+	Time    string `json:"time"`
+	Service string `json:"service"`
+	Level   int    `json:"level"` // 0: info 1: warn 2: debug 3: error 4: fatal
+	Message string `json:"message"`
 }
 
 type MessageData interface {
