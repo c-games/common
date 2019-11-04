@@ -1,9 +1,10 @@
 package app
 
 import (
+	"github.com/google/martian/log"
 	"github.com/spf13/viper"
 	"gitlab.3ag.xyz/backend/common/db"
-	"gitlab.3ag.xyz/backend/common/logger"
+	"gitlab.3ag.xyz/backend/common/logback"
 	"gitlab.3ag.xyz/backend/common/mq"
 	"gitlab.3ag.xyz/backend/common/mq/msg"
 )
@@ -38,9 +39,9 @@ func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	mqChAdp.QOS(1, 0, false)
 
-	// NOTE generate a logger channel
+	// NOTE generate a logback channel
 	chLogger := mqAdp.GetChannel()
-	logger.Init(appname, msg.Logger.QueueName(), chLogger)
+	logback.Init(appname, msg.Logger.QueueName(), chLogger, false, log.Info)
 
 
 	dbConf := viper.GetString("db")

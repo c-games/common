@@ -1,4 +1,4 @@
-package logger
+package logback
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ var fakeChannel mq.IChannelAdapter
 var fakeQueue mq.IQueueAdapter
 
 func TestLogf(t *testing.T) {
-	sendData := "send to logger"
+	sendData := "send to logback"
 	Log(sendData)
 
 	mqMsg := fakeQueue.Consume("", false, false, false, false, nil)

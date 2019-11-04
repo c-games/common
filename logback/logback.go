@@ -1,4 +1,4 @@
-package logger
+package logback
 
 import (
 	"encoding/json"
@@ -10,6 +10,9 @@ import (
 	"gitlab.3ag.xyz/backend/common/mq"
 	"gitlab.3ag.xyz/backend/common/mq/msg"
 	"gitlab.3ag.xyz/backend/common/timeutil"
+	"regexp"
+	"runtime"
+	"strings"
 	"time"
 )
 
@@ -25,9 +28,13 @@ type loggerStruct struct {
 
 var logger *loggerStruct
 var serviceName string
-var printRemote bool
+var printRemote = false
 
-func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
+func Init(name string, loggerQueueName string, channel mq.IChannelAdapter, isPrintRemote bool, logLevel int) {
+
+	printRemote = isPrintRemote
+	log.SetLevel(logLevel)
+
 	if logger == nil {
 		serviceName = name
 
@@ -52,7 +59,7 @@ func Init(name string, loggerQueueName string, channel mq.IChannelAdapter) {
 						Body:        body,
 						Timestamp:   time.Now(),
 					})
-				fail.FailedOnError(err, "[logger-gorutine] publish faled")
+				fail.FailedOnError(err, "[logback-gorutine] publish faled")
 				logdata, _ := json.Marshal(log.Data)
 				fmt.Printf("[%s] %s\n", timeutil.Now(), string(logdata))
 			}
@@ -79,38 +86,42 @@ func assertLoggerAvailable() {
 	}
 }
 
-var LOG_TYPE_INFO = 0
-var LOG_TYPE_WARN = 1
-var LOG_TYPE_DEBUG = 2
-var LOG_TYPE_ERROR = 3
-var LOG_TYPE_FATAL = 4
 
-func GetLogLevel(num int) string {
-	// 0: info 1: warn 2: debug 3: error 4: fatal
-	switch num {
-	case LOG_TYPE_INFO:
-		return "INFO"
-	case LOG_TYPE_WARN:
-		return "WARN"
-	case LOG_TYPE_DEBUG:
-		return "DEBUG"
-	case LOG_TYPE_ERROR:
-		return "ERROR"
-	case LOG_TYPE_FATAL:
-		return "FATAL"
-	default:
-		panic("Undefined log level")
-	}
-}
 
-func _log(serial int64, logLevel int, message string) {
+func _log(serial int64, logLevel int, format string, args ...interface{}) {
 	assertLoggerAvailable()
+	pc, file, line, ok := runtime.Caller(2)
+	details := runtime.FuncForPC(pc)
+	var fnName = ""
+	if !ok {
+		file = "???"
+		line = 0
+	} else {
+		re := regexp.MustCompile(`.*\/gitlab\.3ag\.xyz\/[^\/]*`)
+		file = re.ReplaceAllString(file, "")
+		p := strings.Split(details.Name(), "/")
+		fnName = p[len(p)-1]
+	}
+
+	format = "{%v} {%s:%s:%v} " + format
+	args = append([]interface{}{serial, file, fnName, line}, args...)
+
 	if serviceName == "" {
-		log.Errorf("ServiceName is empty, Please use logger.Init() setup common/logger")
+		log.Errorf("ServiceName is empty, Please use logback.Init() setup common/logback")
 	}
 	timeStr := timeutil.Now()
-	log.Infof("[%s] [%v] [%s] [%s] [%s]",
-		timeStr, serial, GetLogLevel(logLevel), serviceName, message)
+
+	switch logLevel {
+	case log.Info:
+		log.Infof(format, args...)
+	case log.Error:
+		log.Errorf(format, args...)
+	case log.Debug:
+		log.Debugf(format, args...)
+	default:
+		panic("Unknown log level")
+	}
+
 	if printRemote {
 		logger.channel <- LogStruct{
 			Command: "print",
@@ -119,48 +130,30 @@ func _log(serial int64, logLevel int, message string) {
 				Time:    timeStr,
 				Service: serviceName,
 				Level:   logLevel,
-				Message: message,
+				Message: fmt.Sprintf(format, args...),
 			},
 		}
 	}
 }
 
-func Info(serial int64, message string) {
-	_log(serial, LOG_TYPE_INFO, message)
-}
-
 func Infof(serial int64, message string, params ...interface{}) {
-	Info(serial, fmt.Sprintf(message, params))
+	_log(serial, log.Info, fmt.Sprintf(message, params))
 }
 
-func Warn(serial int64, message string) {
-	_log(serial, LOG_TYPE_WARN, message)
+func Debugf(serial int64, format string, args ...interface{}) {
+	_log(serial, log.Debug, format, args...)
 }
 
-func Warnf(serial int64, message string, params ...interface{}) {
-	Info(serial, fmt.Sprintf(message, params))
+func Errorf(serial int64, format string, args ...interface{}) {
+	_log(serial, log.Error, format, args)
 }
 
-func Debug(serial int64, message string) {
-	_log(serial, LOG_TYPE_DEBUG, message)
+// TODO
+func Fatalf(serial int64, format string, args ...interface{}) {
+	_log(serial, 9999, format, args)
 }
 
-func Debugf(serial int64, message string, params ...interface{}) {
-	Info(serial, fmt.Sprintf(message, params))
-}
-
-func Error(serial int64, message string) {
-	_log(serial, LOG_TYPE_ERROR, message)
-}
-
-func Errorf(serial int64, message string, params ...interface{}) {
-	Info(serial, fmt.Sprintf(message, params))
-}
-
-func Fatal(serial int64, message string) {
-	_log(serial, LOG_TYPE_FATAL, message)
-}
-
-func Fatalf(serial int64, message string, params ...interface{}) {
-	Info(serial, fmt.Sprintf(message, params))
+// TODO
+func SQL() {
+	panic("implement me")
 }
