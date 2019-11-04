@@ -39,14 +39,15 @@ type QueryOrderByAgentData struct {
 }
 
 type PlaceOrderData struct {
-	UserId      int64   `json:"user_id"`
-	GameId      int     `json:"game_id"`
-	Round       int64   `json:"round"`
-	Target      string  `json:"target"`
-	Value       string  `json:"value"`
-	Odds        float32 `json:"odds"`
-	Refund      float32 `json:"refund"`
-	OrderCredit float32 `json:"order_credit"`
+	UserId       int64   `json:"user_id"`
+	GameId       int     `json:"game_id"`
+	Round        int64   `json:"round"`
+	Target       string  `json:"target"`
+	Value        string  `json:"value"`
+	Odds         float32 `json:"odds"`
+	Refund       float32 `json:"refund"`
+	OrderCredit  float32 `json:"order_credit"`
+	EffectCredit float32 `json:"effect_credit"`
 }
 
 type WithdrawData struct {
@@ -102,6 +103,7 @@ type QueryResponseData struct {
 	Odds         float32 `json:"odds"`
 	Refund       float32 `json:"refund"`
 	OrderCredit  float32 `json:"order_credit"`
+	EffectCredit float32 `json:"effect_credit"`
 	OrderDate    string  `json:"order_date"`
 	PayoutCredit float32 `json:"payout_credit"`
 	IsOpen       int     `json:"is_open"`

@@ -2,11 +2,14 @@
 package mq
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
 	"gitlab.3ag.xyz/backend/common/fail"
 	"gitlab.3ag.xyz/backend/common/mq/msg"
+	"os"
+
 	"time"
 )
 
@@ -27,6 +30,7 @@ func (err NoResponseErr) Error() string {
 type IConnection interface {
 	Channel() (*amqp.Channel, error)
 	Close() error
+	ConnectionState() tls.ConnectionState
 }
 
 type IChannel interface {
@@ -100,6 +104,10 @@ type QueueAdapter struct {
 
 func (adp *AMQPAdapter) GetChannel() IChannelAdapter {
 	ch, err := adp.Connect.Channel()
+	if err != nil{
+		fmt.Println(err)
+		os.Exit(2)
+	}
 	fail.FailedOnError(err, "get channel failed")
 	return &ChannelAdapter{
 		AMQPAdapter: adp,
@@ -111,6 +119,9 @@ func (adp *AMQPAdapter) Close() {
 	//err := adp.Channel.Qos(count, size, global)
 	err := adp.Connect.Close()
 	fail.FailedOnError(err, "Connect close failed")
+}
+func (adp *AMQPAdapter) ConnectionState() tls.ConnectionState {
+	return adp.Connect.ConnectionState()
 }
 
 func (adp *ChannelAdapter) QOS(count, size int, global bool) {

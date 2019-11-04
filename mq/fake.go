@@ -1,6 +1,7 @@
 package mq
 
 import (
+	"crypto/tls"
 	"fmt"
 	"github.com/streadway/amqp"
 	"gitlab.3ag.xyz/backend/common/fail"
@@ -69,6 +70,11 @@ func (fake *FakeConnection) Channel() (*amqp.Channel, error) {
 func (fake *FakeConnection) Close() error {
 	// NOTE do nothing
 	return nil
+}
+
+func (fake *FakeConnection) ConnectionState() tls.ConnectionState {
+	// NOTE do nothing
+	return tls.ConnectionState{}
 }
 
 func GetFakeChannel() *FakeChannel {
