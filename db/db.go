@@ -49,7 +49,7 @@ func (d *DBAdapter) Exec(query string, args ...interface{}) sql.Result {
 		result, err = d.Connect.Exec(query, args...)
 	}
 
-	fail.FailedOnError(err, "Failed to query")
+	fail.FailedOnError(err, "Failed to exec")
 	return result
 }
 
@@ -205,7 +205,7 @@ func CompareParams(params []interface{}, expectParamCount int, expectParamTypes 
 		paramType := reflect.TypeOf(param)
 
 		if expectType != paramType.Kind() {
-			panic("query stmt 資料型態有錯")
+			panic(fmt.Sprintf("query stmt 資料型態有錯, expectType = %s, paramType = %s", expectType, paramType.Kind()))
 		}
 	}
 	return nil
@@ -242,3 +242,26 @@ func QueryCondition2(queryResultType reflect.Type, rowLike SqlRowLike) (interfac
 	return elementInstent, err
 }
 
+
+// key value map 轉成 sql update 的 string
+func GenUpdateKeysAndValueList(updateData map[string]interface{}) (string, []interface{}) {
+	kString := ""
+	var vList []interface{}
+	for k, v := range updateData {
+		kString = kString + "," + k + "=?"
+		vList = append(vList, v)
+	}
+	kString = kString[1:]
+	return kString, vList
+}
+
+func GenInsertKeysAndValueList(updateData map[string]interface{}) (string, []interface{}) {
+	kString := ""
+	var vList []interface{}
+	for k, v := range updateData {
+		kString = kString + "," + k
+		vList = append(vList, v)
+	}
+	kString = kString[1:]
+	return kString, vList
+}
