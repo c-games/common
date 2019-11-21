@@ -1,9 +1,9 @@
 package util
 
 import (
-	"time"
 	"encoding/json"
 	"github.com/streadway/amqp"
+	"time"
 )
 
 
@@ -26,3 +26,4 @@ func SendResponse(ch *amqp.Channel, targetQueueName string, responseData interfa
 			AppId: serial,
 		})
 }
+
