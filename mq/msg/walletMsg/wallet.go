@@ -26,10 +26,17 @@ type UpdateData struct {
 	AgentTransferId string              `json:"agent_transfer_id"`
 }
 
+type OrderUpdateRecord struct {
+	Id           int64   `json:"order_id"`
+	CreditChange float32 `json:"credit_change"`
+	Reason       int     `json:"reason"`
+	WinLose      int     `json:"win_lose"`
+}
+
 type MultiUpdateData struct {
 	UserId      int64         `json:"user_id"`
 	TotalCredit float32       `json:"total_credit"`
-	Detail      []OrderRecord `json:"detail"`
+	Detail      []OrderUpdateRecord `json:"detail"`
 }
 
 type ValidateData struct {
@@ -49,8 +56,8 @@ type QueryData struct {
 
 // response data
 type ResponseData struct {
-	TransferId int64 `json:"transfer_id"`
-	Credit float32 `json:"credit"`
+	TransferId int64   `json:"transfer_id"`
+	Credit     float32 `json:"credit"`
 }
 
 type QueryByAgentData struct {
@@ -60,6 +67,6 @@ type QueryByAgentData struct {
 // response data
 type QueryByAgentResponse struct {
 	// TransferId int64 `json:"transfer_id"` // Not support
-	AgentId int `json:"agentId"`
-	Credit float32 `json:"credit"`
+	AgentId int     `json:"agentId"`
+	Credit  float32 `json:"credit"`
 }

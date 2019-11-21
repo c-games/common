@@ -92,9 +92,10 @@ type UpdateResponse struct {
 }
 
 type QueryResponseData struct {
-	UserId       int64   `json:"user_id"`
-	AgentId      int     `json:"agent_id"`
 	OrderId      int64   `json:"order_id"`
+	AgentId      int     `json:"agent_id"`
+	AgentAccount string  `json:"agent_account"`
+	UserId       int64   `json:"user_id"`
 	Account      string  `json:"account"`
 	Round        int64   `json:"round"`
 	GameId       int     `json:"game_id"`
