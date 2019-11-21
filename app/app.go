@@ -17,7 +17,6 @@ type ProxyData struct {
 	Target string // target queue
 }
 
-// TODO fix
 func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	// RabbitMQ part
@@ -39,9 +38,7 @@ func Init(appname string) (*mq.AMQPAdapter, mq.IChannelAdapter, chan bool) {
 
 	mqChAdp.QOS(1, 0, false)
 
-	// NOTE generate a logback channel
-	chLogger := mqAdp.GetChannel()
-	logback.Init(appname, msg.Logger.QueueName(), chLogger, false, log.Info)
+	logback.Init(log.Info)
 
 
 	dbConf := viper.GetString("db")
