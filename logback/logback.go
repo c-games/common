@@ -3,7 +3,6 @@ package logback
 import (
 	"fmt"
 	"github.com/google/martian/log"
-	"gitlab.3ag.xyz/backend/common/timeutil"
 	"regexp"
 	"runtime"
 	"strings"
@@ -13,7 +12,6 @@ type LogStruct struct {
 	Command string
 	Data    interface{}
 }
-
 
 func Init(logLevel int) {
 	log.SetLevel(logLevel)
@@ -35,8 +33,6 @@ func _log(serial int64, logLevel int, format string, args ...interface{}) {
 
 	format = "{%v} {%s:%s:%v} " + format
 	args = append([]interface{}{serial, file, fnName, line}, args...)
-
-	timeStr := timeutil.Now()
 
 	switch logLevel {
 	case log.Info:
