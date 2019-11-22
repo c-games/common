@@ -3,14 +3,10 @@ package mq
 
 import (
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
 	"gitlab.3ag.xyz/backend/common/fail"
-	"gitlab.3ag.xyz/backend/common/mq/msg"
 	"os"
-
-	"time"
 )
 
 // -------------------------------------------
@@ -57,14 +53,10 @@ type IAMQPAdapter interface {
 
 type IChannelAdapter interface {
 	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (IQueueAdapter, error)
-	QueueDeclareByQueueConfig(config msg.QueueConfig) (IQueueAdapter, error)
+
 	GetQueue(name string, durable, autoDelete, exclusive, noWait bool) IQueueAdapter
 	GetQueueWithArgs(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) IQueueAdapter
 	Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
-	PublishService(targetService msg.Service, cgMsg msg.CGMessage) error
-	PublishServiceNoWaitTo(serviceName msg.Service, command msg.ServiceCommand, serial string, data msg.IServiceData) error
-	ResponseService(targetService msg.Service, cgMsg msg.CGMessage) error
-	ResponseServiceNoWaitTo(serviceName msg.Service, command msg.ServiceCommand, serial string, data msg.IServiceData) error
 	ExchangeDeclare(name, kind string, durable, autoDelete, internal, noWait bool, args amqp.Table)
 	QueueBind(queueName, bindKey, exchangeName string, noWait bool, args amqp.Table)
 	QueueBindEasy(queueName, bindKey, exchangeName string)
@@ -145,94 +137,7 @@ func (adp *ChannelAdapter) Publish(exchange, key string, mandatory, immediate bo
 	return err
 }
 
-func (adp *ChannelAdapter) PublishService(targetService msg.Service, cgmsg msg.CGMessage) error {
-	if (cgmsg.WaitResponse && &cgmsg.ResponseQueue == nil) ||
-		(cgmsg.WaitResponse) { //&& cgmsg.Serial == nil) {
-		return NoResponseErr{}
-	}
-
-	// appId := cgmsg.Serial
-	data, err := json.Marshal(cgmsg)
-	fail.FailedOnError(err, "parse cg message error")
-	err = adp.Channel.Publish(
-		targetService.QueueName(),
-		"",
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        data,
-			Timestamp:   time.Now(),
-			// AppId:       appId,   // NOTE appid 是 amqp 的 serial，目前還沒用到
-		})
-
-	return err
-}
-
-func (adp *ChannelAdapter) PublishServiceNoWaitTo(service msg.Service, command msg.ServiceCommand,
-	serial string, data msg.IServiceData) error {
-		err := adp.Channel.Publish(
-		service.QueueName(),
-		"", // route key
-		false, //
-		false, //
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        msg.ToByteArray(data),
-			Timestamp:   time.Now(),
-			AppId: serial,
-		})
-		return err
-}
-
-func (adp *ChannelAdapter) ResponseService(targetService msg.Service, cgmsg msg.CGMessage) error {
-	if (cgmsg.WaitResponse && &cgmsg.ResponseQueue == nil) ||
-		(cgmsg.WaitResponse) { // && cgmsg.Serial == nil) {
-		return NoResponseErr{}
-	}
-
-	// appId := cgmsg.Serial
-	data, err := json.Marshal(cgmsg)
-	fail.FailedOnError(err, "parse cg message error")
-	err = adp.Channel.Publish(
-		targetService.ResponseQueueName(),
-		"",
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        data,
-			Timestamp:   time.Now(),
-			// AppId:       appId, // NOTE amqp 用的 serial，目前沒用到
-		})
-
-	return err
-}
-
-
-func (adp *ChannelAdapter) ResponseServiceNoWaitTo(service msg.Service, command msg.ServiceCommand,
-	serial string, data msg.IServiceData) error {
-		err := adp.Channel.Publish(
-		service.ResponseQueueName(),
-		"", // route key
-		false, //
-		false, //
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        msg.ToByteArray(data),
-			Timestamp:   time.Now(),
-			AppId: serial,
-		})
-		return err
-}
-
 func (adp *ChannelAdapter) QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (IQueueAdapter, error) {
-	q, err := adp.Channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, args)
-	return &QueueAdapter{Queue: &q, ChannelAdapter: adp, name: name}, err
-}
-
-func (adp *ChannelAdapter) QueueDeclareByQueueConfig(config msg.QueueConfig) (IQueueAdapter, error) {
-	name, durable, autoDelete, exclusive, noWait, args := config.Spread()
 	q, err := adp.Channel.QueueDeclare(name, durable, autoDelete, exclusive, noWait, args)
 	return &QueueAdapter{Queue: &q, ChannelAdapter: adp, name: name}, err
 }
