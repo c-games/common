@@ -1,13 +1,14 @@
 package walletMsg
 
 const (
+	Reason_Other int = 0
 	Reason_Bid          int = 1 // 下注
 	Reason_Reward       int = 2 // 中獎
 	Reason_Withdraw     int = 3 // 撤獎
 	Reason_Transfer_In  int = 6
 	Reason_Transfer_Out int = 7
 	Reason_Flat         int = 8  // 平局
-
+Reason_MaxRange int = 9
 
 )
 

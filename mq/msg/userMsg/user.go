@@ -102,23 +102,23 @@ type QueryUserResponse struct {
 }
 
 type QueryResponse struct {
-	UserId             int64   `json:"user_id"`
-	AgentId            int     `json:"agent_id"`
-	MasterAgentId      int     `json:"master_agent_id"`
-	Account            string  `json:"account"`
-	Name               string  `json:"name"`
-	Email              string  `json:"email"`
-	Birthday           string  `json:"birthday"`
-	Mobile             string  `json:"mobile"`
-	Qq                 string  `json:"qq"`
-	Wechat             string  `json:"wechat"`
-	Credit             float32 `json:"credit"`
+	UserId        int64   `json:"user_id"`
+	AgentId       int   `json:"agent_id"`
+	MasterAgentId int   `json:"master_agent_id"`
+	Account       string  `json:"account"`
+	Name          string  `json:"name"`
+	Email         string  `json:"email"`
+	Birthday      string  `json:"birthday"`
+	Mobile        string  `json:"mobile"`
+	Qq            string  `json:"qq"`
+	Wechat        string  `json:"wechat"`
+	Credit        float32 `json:"credit"`
 }
 
 type QueryStatusResponse struct {
 	UserId      int64 `json:"user_id"`
-	Status      int   `json:"status"`
-	LoginStatus int   `json:"login_status"`
+	Status      int `json:"status"`
+	LoginStatus int `json:"login_status"`
 }
 
 type LoginResponse struct {
@@ -129,7 +129,7 @@ type LoginResponse struct {
 type ValidateResponse struct {
 	Id int64 `json:"user_id"`
 	//	MasterAgentId int    `json:"master_agent_id"`
-	AgentId int    `json:"agent_id"`
+	AgentId int  `json:"agent_id"`
 	Account string `json:"account"`
 }
 

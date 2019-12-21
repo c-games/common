@@ -17,7 +17,7 @@ func Init(logLevel int) {
 	log.SetLevel(logLevel)
 }
 
-func _log(serial int64, logLevel int, format string, args ...interface{}) {
+func _log(serial int, logLevel int, format string, args ...interface{}) {
 	pc, file, line, ok := runtime.Caller(2)
 	details := runtime.FuncForPC(pc)
 	var fnName = ""
@@ -58,14 +58,14 @@ func Errorf(format string, args ...interface{}) {
 	_log(0, log.Error, format, args)
 }
 
-func Infof_s(serial int64, message string, params ...interface{}) {
+func Infof_s(serial int, message string, params ...interface{}) {
 	_log(serial, log.Info, fmt.Sprintf(message, params...))
 }
 
-func Debugf_s(serial int64, format string, args ...interface{}) {
+func Debugf_s(serial int, format string, args ...interface{}) {
 	_log(serial, log.Debug, format, args...)
 }
 
-func Errorf_s(serial int64, format string, args ...interface{}) {
+func Errorf_s(serial int, format string, args ...interface{}) {
 	_log(serial, log.Error, format, args)
 }
