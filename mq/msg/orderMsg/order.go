@@ -23,6 +23,9 @@ type QueryMultipleOrder struct {
 	BeginDate string `json:"begin_date"`
 	EndDate   string `json:"end_date"`
 	Date      string `json:"date"`
+
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
 }
 
 type QueryOrderByUserData struct {
