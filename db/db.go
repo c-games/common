@@ -126,6 +126,11 @@ func GenCreateTable(s interface{}) string {
 	var pk []string
 	for idx := 0 ; idx < rfs.NumField() ; idx++ {
 		f := rfs.Field(idx)
+
+		if f.Name == "ITable" {
+			continue
+		}
+
 		name := "`" + str.Pascal2Snake(f.Name) + "`"
 
 		fields = fields + name + " " + f.Tag.Get("sql") + ",\n"
