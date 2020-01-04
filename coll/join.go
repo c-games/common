@@ -14,6 +14,18 @@ func JoinInt64(arrInt []int64, delemeter string) string {
 	return intString
 }
 
+func JoinInt(arrInt []int, delemeter string) string {
+	if len(arrInt) == 0 {
+		return ""
+	}
+
+	intString := strconv.FormatInt(int64(arrInt[0]), 10)
+	for _, id := range arrInt[1:] {
+		intString = intString + delemeter + strconv.FormatInt(int64(id), 10)
+	}
+	return intString
+}
+
 func JoinMapInt(m map[string]int, delimiter string) string {
 	if len(m) == 0 {
 		return ""
