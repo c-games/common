@@ -34,8 +34,8 @@ type OrderUpdateRecord struct {
 }
 
 type MultiUpdateData struct {
-	UserId      int64         `json:"user_id"`
-	TotalCredit float32       `json:"total_credit"`
+	UserId      int64               `json:"user_id"`
+	TotalCredit float32             `json:"total_credit"`
 	Detail      []OrderUpdateRecord `json:"detail"`
 }
 
