@@ -104,30 +104,15 @@ func IfNoRowOr(err error, fn func(), noRowFn func()) {
 
 func GenDropTable(s interface{}) string {
 	rfs := reflect.TypeOf(s)
-	if rfs.Name() == "" {
-		return "DROP TABLE "
-	} else {
-		return "DROP TABLE `" + str.Pascal2Snake(rfs.Name()) + "`;"
-	}
-}
 
-func GenCreateTable(s interface{}) string {
-	rfs := reflect.TypeOf(s)
-	var sqlString string
-	if rfs.Name() == "" {
-		sqlString = "CREATE TABLE "
-	} else {
-
-		sqlString = "CREATE TABLE `" + str.Pascal2Snake(rfs.Name()) + "` "
-	}
-
-
+	tableName := str.Pascal2Snake(rfs.Name()) // use struct name as default name
 	fields := ""
 	var pk []string
 	for idx := 0 ; idx < rfs.NumField() ; idx++ {
 		f := rfs.Field(idx)
 
 		if f.Name == "ITable" {
+			tableName = f.Tag.Get("name")
 			continue
 		}
 
@@ -141,6 +126,46 @@ func GenCreateTable(s interface{}) string {
 		}
 
 	}
+
+	if tableName == "" {
+		panic("you need a table name")
+	} else {
+		return "DROP TABLE `" + tableName + "`;"
+	}
+}
+
+func GenCreateTable(s interface{}) string {
+	rfs := reflect.TypeOf(s)
+
+	tableName := str.Pascal2Snake(rfs.Name()) // use struct name as default name
+	fields := ""
+	var pk []string
+	for idx := 0 ; idx < rfs.NumField() ; idx++ {
+		f := rfs.Field(idx)
+
+		if f.Name == "ITable" {
+			tableName = f.Tag.Get("name")
+			continue
+		}
+
+		name := "`" + str.Pascal2Snake(f.Name) + "`"
+
+		fields = fields + name + " " + f.Tag.Get("sql") + ",\n"
+
+		_, ok := f.Tag.Lookup("pk")
+		if ok {
+			pk = append(pk, name)
+		}
+
+	}
+
+	var sqlString string
+	if tableName ==  "" {
+		panic("you need to set a table name")
+	} else {
+		sqlString = "CREATE TABLE `" + tableName + "` "
+	}
+
 
 	if len(fields) > 0 && len(pk) == 0{
 		fields = fields[:len(fields) - 2]
