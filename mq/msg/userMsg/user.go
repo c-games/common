@@ -146,11 +146,11 @@ type QueryUserRefundResponse struct {
 }
 
 type QueryAgentResponse struct {
-	Id            int    `json:"agent_id"`
-	Account       string `json:"account"`
-	Name          string `json:"name"`
-	MasterAgentId int    `json:"master_agent_id"`
-	Role          int    `json:"role"`
+	Id      int    `json:"agent_id"`
+	Account string `json:"account"`
+	Name    string `json:"name"`
+	Parent  int    `json:"parent"`
+	Role    int    `json:"role"`
 }
 
 type FindUserId struct {
