@@ -6,37 +6,21 @@ import (
 	"testing"
 )
 
-func TestFetcData(t *testing.T) {
-	data := &QueryData{
-		Token: "",
-	}
-	expect := `{"token":""}`
-
-	testutil.Is(msg.ToJson(data), expect, t)
-}
 
 func TestLoginData(t *testing.T) {
 	data := &LoginData{
 		Account: "syber",
 		Password: "syberspwd",
-		Token: "a-random-string",
-		Ip: "127.0.0.1",
-		Time: "2019-04-01",
-		Platform: "PC",
 	}
 	expect := `{"account":"syber",` +
-		`"password":"syberspwd",` +
-		`"token":"a-random-string",` +
-		`"ip":"127.0.0.1",` +
-		`"time":"2019-04-01",` +
-		`"platform":"PC"}`
+		`"password":"syberspwd"}`
 
 	testutil.Is(msg.ToJson(data), expect, t)
 }
 
 func TestRegisterData(t *testing.T) {
 	data := RegisterData{
-		AgentId: "agent-id-number",
+		AgentId: 10001,
 		Account: "syber",
 		Name: "sybersname",
 		Email: "syber@test.cg",
@@ -44,8 +28,7 @@ func TestRegisterData(t *testing.T) {
 		Qq: "qq-number",
 		Wechat: "wechat-number",
 		Ip: "127.0.0.1",
-		Time: "2019-04-01",
-		Platform: "PC",
+		Platform: 0,
 	}
 	expect := `{` +
 		`"agent_id":"agent-id-number",` +
