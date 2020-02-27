@@ -17,5 +17,4 @@ func ToJson(d interface{}) string {
 func ToByteArray(d interface{}) []byte {
 	json, err := json.Marshal(d)
 	fail.FailedOnError(err, "parse json failed")
-	return json
-}
+	return json }

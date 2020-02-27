@@ -9,10 +9,13 @@ import (
 
 func TestLoginData(t *testing.T) {
 	data := &LoginData{
+		AgentId: 1000,
 		Account: "syber",
 		Password: "syberspwd",
 	}
-	expect := `{"account":"syber",` +
+	expect := `{` +
+		`"agent_id":1000,` +
+		`"account":"syber",` +
 		`"password":"syberspwd"}`
 
 	testutil.Is(msg.ToJson(data), expect, t)
@@ -23,6 +26,7 @@ func TestRegisterData(t *testing.T) {
 		AgentId: 10001,
 		Account: "syber",
 		Name: "sybersname",
+		Password: "pw",
 		Email: "syber@test.cg",
 		Mobile: "00000000",
 		Qq: "qq-number",
@@ -31,16 +35,16 @@ func TestRegisterData(t *testing.T) {
 		Platform: 0,
 	}
 	expect := `{` +
-		`"agent_id":"agent-id-number",` +
+		`"agent_id":10001,` +
 		`"account":"syber",` +
 		`"name":"sybersname",` +
 		`"email":"syber@test.cg",` +
+		`"password":"pw",` +
 		`"mobile":"00000000",` +
 		`"qq":"qq-number",` +
 		`"wechat":"wechat-number",` +
 		`"ip":"127.0.0.1",` +
-		`"time":"2019-04-01",` +
-		`"platform":"PC"` +
+		`"platform":0` +
 		`}`
 
 	testutil.Is(msg.ToJson(data), expect, t)

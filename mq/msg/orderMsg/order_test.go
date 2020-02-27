@@ -9,11 +9,13 @@ import (
 
 func TestWithdrawData(t *testing.T) {
 	data := &WithdrawData{
+		Account: "account-name",
 		Token: "random-string",
 		OrderId: "a-order-encoding-id",
 	}
 
 	expect := `{` +
+		`"account":"account-name",` +
 		`"token":"random-string",` +
 		`"order_id":"a-order-encoding-id"` +
 		`}`
@@ -23,11 +25,13 @@ func TestWithdrawData(t *testing.T) {
 
 func TestFetchData(t *testing.T) {
 	data := &FetchData{
+		Account: "account-name",
 		Token: "random-string",
 		OrderId: "a-order-encoding-id",
 	}
 
 	expect := `{` +
+		`"account":"account-name",` +
 		`"token":"random-string",` +
 		`"order_id":"a-order-encoding-id"` +
 		`}`
