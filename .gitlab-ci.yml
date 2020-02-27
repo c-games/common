@@ -3,9 +3,6 @@ image: golang:1.14.0-alpine
 before_script:
   - go get -v all
 
-stage:
-  - test
-
 test:
   scripts:
     - go test ./...
