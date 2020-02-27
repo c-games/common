@@ -4,5 +4,5 @@ before_script:
   - go get -v all
 
 test:
-  scripts:
+  script:
     - go test ./...
