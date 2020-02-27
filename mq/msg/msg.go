@@ -1,7 +1,7 @@
 package msg
 
 import (
-	"../../fail"
+	"gitlab.3ag.xyz/backend/common/fail"
 	"encoding/json"
 )
 

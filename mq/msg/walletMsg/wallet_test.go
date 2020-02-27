@@ -1,8 +1,8 @@
 package walletMsg
 
 import (
-	"../../../testutil"
-	"../../msg"
+	"gitlab.3ag.xyz/backend/common/testutil"
+	"gitlab.3ag.xyz/backend/common/mq/msg"
 	"testing"
 )
 
