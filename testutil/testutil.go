@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-
 func TestFailIfErr(t *testing.T, err error, message string) {
 	if err != nil {
 		t.Logf("%s", message)
@@ -16,7 +15,7 @@ func TestFailIfErr(t *testing.T, err error, message string) {
 }
 
 func TestFailIfErrf(t *testing.T, err error, format string, args ...interface{}) {
-	TestFailIfErr(t, err, fmt.Sprintf(format, args))
+	TestFailIfErr(t, err, fmt.Sprintf(format, args...))
 }
 
 func Is(result, expect interface{}, t *testing.T) {
