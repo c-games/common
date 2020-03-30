@@ -15,10 +15,11 @@ type LoginData struct {
 }
 
 type LoginInfoData struct {
-	UserId   int64  `json:"user_id"`
+	//UserId   int64  `json:"user_id"`
+	Token    string `json:"token"`
 	Ip       string `json:"ip"`
 	Platform int    `json:"platform"`
-	Browser  int    `json:"browser"`
+	Browser  string `json:"browser"`
 }
 
 type RegisterData struct {
