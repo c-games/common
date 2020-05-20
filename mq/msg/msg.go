@@ -1,8 +1,8 @@
 package msg
 
 import (
-	"gitlab.3ag.xyz/backend/common/fail"
 	"encoding/json"
+	"gitlab.3ag.xyz/backend/common/fail"
 )
 
 type MessageData interface {
