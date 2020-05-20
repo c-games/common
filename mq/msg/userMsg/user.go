@@ -9,7 +9,7 @@ type QueryData struct {
 }
 
 type LoginData struct {
-	AgentId  int    `json:"agent_id"`
+	AgentId  int64  `json:"agent_id"`
 	Account  string `json:"account"`
 	Password string `json:"password"`
 }
@@ -23,7 +23,7 @@ type LoginInfoData struct {
 }
 
 type RegisterData struct {
-	AgentId  int    `json:"agent_id"`
+	AgentId  int64  `json:"agent_id"`
 	Account  string `json:"account"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
@@ -79,7 +79,7 @@ type RegisterGameData struct {
 }
 
 type RegisterAgentData struct {
-	Id            int    `json:"agent_id"`
+	Id            int64  `json:"agent_id"`
 	Account       string `json:"account"`
 	Password      string `json:"password"`
 	Name          string `json:"name"`
@@ -88,11 +88,11 @@ type RegisterAgentData struct {
 }
 
 type QueryByAgent struct {
-	AgentId int `json:"agent_id"`
+	AgentId int64 `json:"agent_id"`
 }
 
 type QueryAgentData struct {
-	Id int `json:"agent_id"`
+	Id int64 `json:"agent_id"`
 }
 
 // Response data:
@@ -104,8 +104,8 @@ type QueryUserResponse struct {
 
 type QueryResponse struct {
 	UserId        int64   `json:"user_id"`
-	AgentId       int     `json:"agent_id"`
-	MasterAgentId int     `json:"master_agent_id"`
+	AgentId       int64   `json:"agent_id"`
+	MasterAgentId int64   `json:"master_agent_id"`
 	Account       string  `json:"account"`
 	Name          string  `json:"name"`
 	Email         string  `json:"email"`
@@ -130,7 +130,7 @@ type LoginResponse struct {
 type ValidateResponse struct {
 	Id int64 `json:"user_id"`
 	//	MasterAgentId int    `json:"master_agent_id"`
-	AgentId int    `json:"agent_id"`
+	AgentId int64  `json:"agent_id"`
 	Account string `json:"account"`
 }
 
@@ -147,14 +147,14 @@ type QueryUserRefundResponse struct {
 }
 
 type QueryAgentResponse struct {
-	Id      int    `json:"agent_id"`
+	Id      int64  `json:"agent_id"`
 	Account string `json:"account"`
 	Name    string `json:"name"`
-	Parent  int    `json:"parent"`
+	Parent  int64  `json:"parent"`
 	Role    int    `json:"role"`
 }
 
 type FindUserId struct {
-	AgentId int    `json:"agent_id"`
+	AgentId int64  `json:"agent_id"`
 	Account string `json:"account"`
 }

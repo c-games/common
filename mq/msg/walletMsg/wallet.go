@@ -61,12 +61,12 @@ type ResponseData struct {
 }
 
 type QueryByAgentData struct {
-	AgentId int `json:"agent_id"`
+	AgentId int64 `json:"agent_id"`
 }
 
 // response data
 type QueryByAgentResponse struct {
 	// TransferId int64 `json:"transfer_id"` // Not support
-	AgentId int     `json:"agentId"`
+	AgentId int64   `json:"agentId"`
 	Credit  float32 `json:"credit"`
 }
