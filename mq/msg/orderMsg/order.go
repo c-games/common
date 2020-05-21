@@ -35,10 +35,10 @@ type QueryOrderByUserData struct {
 }
 
 type QueryOrderByAgentData struct {
-	MasterAgentId int    `json:"master_agent_id"`
-	AgentId       int    `json:"agent_id"`
-	BeginDate     string `json:"begin_date"`
-	EndDate       string `json:"end_date"`
+	MasterAgentId int64    `json:"master_agent_id"`
+	AgentId       int64    `json:"agent_id"`
+	BeginDate     string   `json:"begin_date"`
+	EndDate       string   `json:"end_date"`
 }
 
 type PlaceOrderData struct {
@@ -96,7 +96,7 @@ type UpdateResponse struct {
 
 type QueryResponseData struct {
 	OrderId      int64   `json:"order_id"`
-	AgentId      int     `json:"agent_id"`
+	AgentId      int64   `json:"agent_id"`
 	AgentAccount string  `json:"agent_account"`
 	UserId       int64   `json:"user_id"`
 	Account      string  `json:"account"`
@@ -115,9 +115,9 @@ type QueryResponseData struct {
 }
 
 type QueryOrderByAgentAndGameData struct {
-	AgentId int   `json:"agent_id"`
-	GameId  int   `json:"game_id"`
-	Round   int64 `json:"round"`
+	AgentId int64   `json:"agent_id"`
+	GameId  int     `json:"game_id"`
+	Round   int64   `json:"round"`
 }
 
 type QueryOrderByUserAndGameData struct {
