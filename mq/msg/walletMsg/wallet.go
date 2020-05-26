@@ -45,7 +45,7 @@ type ValidateData struct {
 }
 
 type RegisterData struct {
-	AgentId       int     `json:"agent_id"`
+	AgentId       int64   `json:"agent_id"`
 	UserId        int64   `json:"user_id"`
 	DefaultCredit float32 `json:"default_credit"`
 }
