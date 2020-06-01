@@ -64,7 +64,7 @@ type FetchAllSubAccount struct {
 }
 
 type QueryCrypto struct {
-	AgentId int `json:"agent_id"`
+	AgentId int64 `json:"agent_id"`
 }
 
 // response
@@ -132,6 +132,6 @@ type FetchAllAgentResponse FetchAllMasterAgentResponse
 
 type QueryCryptoResponse struct {
 	Key     string `json:"key"`
-	AgentId int    `json:"agent_id"`
+	AgentId int64    `json:"agent_id"`
 	Status  int    `json:"status"`
 }
