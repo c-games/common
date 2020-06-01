@@ -776,7 +776,7 @@ type Jsk3PlaceOrderSum struct {
 	LinkThree  int `json:"link_three"`
 }
 
-type withdrawResultRecord struct {
+type WithdrawResultRecord struct {
 	GameId int   `json:"game_id"`
 	Round  int64 `json:"round"`
 }
