@@ -4,7 +4,7 @@ import "encoding/json"
 
 //http
 type CGHTTPRequestCommand struct {
-	AgentId int    `json:"agent_id"`
+	AgentId int64    `json:"agent_id"`
 	Command int    `json:"command"`
 	Data    string `json:"data"`
 }
@@ -17,7 +17,7 @@ type CGHTTPResponseCommand struct {
 
 //http command
 type LoginHttpRequest struct {
-	AgentId  int    `json:"agent_id"`
+	AgentId  int64    `json:"agent_id"`
 	Account  string `json:"account"`
 	Password string `json:"password"`
 	Ip       string `json:"ip"`
@@ -30,7 +30,7 @@ type LoginHttpResponse struct {
 }
 
 type RegisterHttpRequest struct {
-	AgentId  int    `json:"agent_id"`
+	AgentId  int64    `json:"agent_id"`
 	Account  string `json:"account"`
 	Password string `json:"password"`
 	Name     string `json:"name"`
