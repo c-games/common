@@ -158,3 +158,9 @@ type FindUserId struct {
 	AgentId int64  `json:"agent_id"`
 	Account string `json:"account"`
 }
+
+type FindUserIdResponse struct {
+	AgentId int    `json:"agent_id"`
+	Account string `json:"account"`
+	UserId  int64  `json:"user_id"`
+}
