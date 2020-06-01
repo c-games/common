@@ -63,6 +63,10 @@ type FetchAllSubAccount struct {
 	Token string `json:"token"` // HeadOffice level token
 }
 
+type QueryCrypto struct {
+	AgentId int `json:"agent_id"`
+}
+
 // response
 type LoginResponse struct {
 	Token string `json:"token"`
@@ -125,3 +129,9 @@ type FetchAllMasterAgentResponse struct {
 }
 
 type FetchAllAgentResponse FetchAllMasterAgentResponse
+
+type QueryCryptoResponse struct {
+	Key     string `json:"key"`
+	AgentId int    `json:"agent_id"`
+	Status  int    `json:"status"`
+}
