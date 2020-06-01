@@ -1,6 +1,9 @@
 package loggerMsg
 
-import "reflect"
+import (
+	"encoding/json"
+	"reflect"
+)
 
 type UserRegisterRecord struct {
 	UserId  int64  `json:"user_id"`
@@ -799,3 +802,7 @@ type MissRoundResponseMessage struct {
 	Round  int64 `json:"round"`
 }
 
+type TotalAndData struct {
+	Total int64           `json:"total"`
+	Data  json.RawMessage `json:"data"`
+}
