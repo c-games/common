@@ -520,7 +520,7 @@ type QueryLongDragonStatistics struct {
 	GameId int `json:"game_id"`
 }
 
-type bjpk10StatisticsResponseMessage struct {
+type Bjpk10StatisticsResponseMessage struct {
 	First   []int `json:"first"`
 	Second  []int `json:"second"`
 	Third   []int `json:"third"`
@@ -533,7 +533,7 @@ type bjpk10StatisticsResponseMessage struct {
 	Tenth   []int `json:"tenth"`
 }
 
-type bjpk10LongDragonResponseMessage struct {
+type Bjpk10LongDragonResponseMessage struct {
 	First          map[string]int `json:"first"`
 	Second         map[string]int `json:"second"`
 	Third          map[string]int `json:"third"`
@@ -547,7 +547,7 @@ type bjpk10LongDragonResponseMessage struct {
 	FirstSecondSum map[string]int `json:"first_second_sum"`
 }
 
-type lsStatisticsResponseMessage struct {
+type LsStatisticsResponseMessage struct {
 	First   []int `json:"first"`
 	Second  []int `json:"second"`
 	Third   []int `json:"third"`
@@ -560,7 +560,7 @@ type lsStatisticsResponseMessage struct {
 	Tenth   []int `json:"tenth"`
 }
 
-type lsLongDragonResponseMessage struct {
+type LsLongDragonResponseMessage struct {
 	First          map[string]int `json:"first"`
 	Second         map[string]int `json:"second"`
 	Third          map[string]int `json:"third"`
@@ -574,7 +574,7 @@ type lsLongDragonResponseMessage struct {
 	FirstSecondSum map[string]int `json:"first_second_sum"`
 }
 
-type spk10StatisticsResponseMessage struct {
+type Spk10StatisticsResponseMessage struct {
 	First   []int `json:"first"`
 	Second  []int `json:"second"`
 	Third   []int `json:"third"`
@@ -587,7 +587,7 @@ type spk10StatisticsResponseMessage struct {
 	Tenth   []int `json:"tenth"`
 }
 
-type spk10LongDragonResponseMessage struct {
+type Spk10LongDragonResponseMessage struct {
 	First          map[string]int `json:"first"`
 	Second         map[string]int `json:"second"`
 	Third          map[string]int `json:"third"`
@@ -601,7 +601,7 @@ type spk10LongDragonResponseMessage struct {
 	FirstSecondSum map[string]int `json:"first_second_sum"`
 }
 
-type cqsscStatisticsResponseMessage struct {
+type CqsscStatisticsResponseMessage struct {
 	BallOne   []int `json:"ball_1"`
 	BallTwo   []int `json:"ball_2"`
 	BallThree []int `json:"ball_3"`
@@ -609,7 +609,7 @@ type cqsscStatisticsResponseMessage struct {
 	BallFive  []int `json:"ball_5"`
 }
 
-type cqsscLongDragonResponseMessage struct {
+type CqsscLongDragonResponseMessage struct {
 	BallOne     map[string]int `json:"ball_1"`
 	BallTwo     map[string]int `json:"ball_2"`
 	BallThree   map[string]int `json:"ball_3"`
@@ -619,7 +619,7 @@ type cqsscLongDragonResponseMessage struct {
 	DragonTiger map[string]int `json:"dragon_tiger"`
 }
 
-type gdkl10StatisticsResponseMessage struct {
+type Gdkl10StatisticsResponseMessage struct {
 	BallOne   []int `json:"ball_1"`
 	BallTwo   []int `json:"ball_2"`
 	BallThree []int `json:"ball_3"`
@@ -630,7 +630,7 @@ type gdkl10StatisticsResponseMessage struct {
 	BallEight []int `json:"ball_8"`
 }
 
-type gdkl10LongDragonResponseMessage struct {
+type Gdkl10LongDragonResponseMessage struct {
 	BallOne   map[string]int `json:"ball_1"`
 	BallTwo   map[string]int `json:"ball_2"`
 	BallThree map[string]int `json:"ball_3"`
