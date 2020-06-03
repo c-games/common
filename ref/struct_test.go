@@ -1,7 +1,7 @@
 package ref
 
 import (
-	"gitlab.3ag.xyz/backend/common/testutil"
+	"github.com/c-games/common/testutil"
 	"reflect"
 	"testing"
 	"time"
