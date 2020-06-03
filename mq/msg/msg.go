@@ -2,7 +2,7 @@ package msg
 
 import (
 	"encoding/json"
-	"gitlab.3ag.xyz/backend/common/fail"
+	"github.com/c-games/common/fail"
 )
 
 type MessageData interface {

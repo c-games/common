@@ -1,8 +1,8 @@
 package orderMsg
 
 import (
-	"gitlab.3ag.xyz/backend/common/mq/msg"
-	"gitlab.3ag.xyz/backend/common/testutil"
+	"github.com/c-games/common/mq/msg"
+	"github.com/c-games/common/testutil"
 	"testing"
 )
 

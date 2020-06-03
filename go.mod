@@ -1,4 +1,4 @@
-module gitlab.3ag.xyz/backend/common
+module github.com/c-games/common
 
 go 1.14
 
